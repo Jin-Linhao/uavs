@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+
+	<node pkg="director" type="director_node.py" name="director_node">
+	</node>
+
+	<node pkg="director" type="require_information.py" name="require_information">
+	</node>
+
+</launch>
+
+

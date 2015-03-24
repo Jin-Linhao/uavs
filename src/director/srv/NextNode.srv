@@ -1,0 +1,8 @@
+string                 next_node
+int32[]                area
+float32[]              length
+float32[]              width
+float32[]              hight
+geometry_msgs/Point[]  pos
+---
+bool          	       confirm

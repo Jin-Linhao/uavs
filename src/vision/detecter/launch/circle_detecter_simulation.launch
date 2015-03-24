@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<launch>
+	<!--rosbag record flag-->
+	<arg name="video_record" value = "false"/>
+	<arg name="detector_GUI" value = "true"/>
+
+  <!-- ================================================================== -->
+ 	<node pkg="rosbag" type="record" name="video_record"
+        	args="/camera/image -o /home/chencl/NTU_Research_Group_ROS/bagfiles/video"
+       		if="$(arg video_record)" />
+
+
+	<node pkg="camera" type="images" name="images" output="screen">
+		<param name="hz" value="10" />
+                <param name="/database" value="$(find camera)/database1/"/>
+	</node>
+
+	<node pkg="detecter" type="circle_node" name="circle_node">
+	</node>
+
+
+	<group if="$(arg detector_GUI)">
+    	      <node pkg="rviz" type="rviz" output="screen" name="rviz" args="-d $(find detecter)/rviz/circle.rviz"/>
+        </group>
+
+ 
+</launch>
+
+

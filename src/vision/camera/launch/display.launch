@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+        <arg name="record_flag" value="1"/>
+
+	<node pkg="camera" type="video" name="video" output="screen">
+		<param name="videoport" value="0" />
+		<param name="hz" value="30" />
+	</node>
+
+
+
+	<node pkg="camera" type="display" name="display"/> 
+
+</launch>

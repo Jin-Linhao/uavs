@@ -1,32 +1,25 @@
-#folders
-build/*
-devel/*
-
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
+build
+devel
+src/CMakeLists.txt
+src/mavlink_ros/src/mavlink_ros/msg/*
+runtime.txt
+bagfiles/
+src/scan_tools/csm/installed
+src/mavlink_ros/src/mavlink_ros/msg/__init__.py
+src/MSLAM2D_Auto_Navigation/msg_gen/lisp/Pos.lisp
+src/MSLAM2D_Auto_Navigation/msg_gen/lisp/_package_Pos.lisp
+src/MSLAM2D_Auto_Navigation/src/MSLAM2D_Auto_Navigation/msg/_Pos.py
+src/mavlink_ros/src/mavlink_ros/__init__.pyc
+src/MSLAM2D_Auto_Navigation/src/MSLAM2D_Auto_Navigation/__init__.pyc
+src/MSLAM2D_Auto_Navigation/src/MSLAM2D_Auto_Navigation/msg/_Pos.pyc
+src/MSLAM2D_Auto_Navigation/src/MSLAM2D_Auto_Navigation/msg/_UwbPos.pyc
+src/MSLAM2D_Auto_Navigation/src/MSLAM2D_Auto_Navigation/msg/__init__.pyc
+src/MSLAM2D_Auto_Navigation/src/MSLAM2D_Auto_Navigation/msg/_nav.pyc
+src/mavlink_ros/src/mavlink_ros/__init__.py
+src/MSLAM2D_Auto_Navigation/msg_gen/
+src/MSLAM2D_Auto_Navigation/src/MSLAM2D_Auto_Navigation/msg/__init__.py
+src/MSLAM2D_Auto_Navigation/src/MSLAM2D_Auto_Navigation/msg/_nav.py
+*.pyc
+*.lisp
+src/camera/database*
+*~

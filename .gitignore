@@ -23,3 +23,4 @@ src/MSLAM2D_Auto_Navigation/src/MSLAM2D_Auto_Navigation/msg/_nav.py
 *.lisp
 src/camera/database*
 *~
+.qglviewer.xml

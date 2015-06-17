@@ -1,7 +1,15 @@
 # LSD-SLAM: Large-Scale Direct Monocular SLAM
 
+Edited by Wang Chen:
+
+When you install opencv2.4.9, Please remember to ENABLE NONFREE MODULE and DISABLE CUDA MODULE.
+
 
 # 1. Quickstart / Minimal Setup
+
+
+you can launch the monocular slam example using launch file:
+
 
 
 Launch the lsd_slam viewer:

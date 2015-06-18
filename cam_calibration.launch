@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+
+	<node pkg="usb_cam" type="usb_cam_node" name="camera"/> 
+
+	<node pkg="camera_calibration" type="cameracalibrator.py" name="cam_calibration_node"
+		args="--size 8x6 --square 0.0245 image:=/camera/image_raw camera:=/camera"
+		output="screen"/>
+
+
+</launch>

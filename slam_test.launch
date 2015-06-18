@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<launch>
+	<!--
+        <arg name="record_flag" value="1"/>
+
+	<node pkg="camera" type="video" name="video" output="screen">
+		<param name="videoport" value="0" />
+		<param name="hz" value="30" />
+	</node>
+	-->
+
+<!--
+	<node pkg="lsd_slam_viewer" type="viewer" name="viewer"/> 
+-->
+
+	<node pkg="lsd_slam_core" type="live_slam" name="live_slam" 
+		args="image:=/camera/image_raw camera_info:=/camera/camera_info"/>
+
+	<node pkg="usb_cam" type="usb_cam_node" name="camera" />
+	
+	<node pkg="rostopic" type="rostopic" name="echo_pose_node" output="screen" 
+		args="echo /lsd_slam/pose">
+	</node>
+
+<!--
+	<node name="output_topic1" pkg="rostopic" type="rostopic" output="screen" args="echo -p /mytopic > outputfile.txt">
+</node>
+-->
+
+</launch>

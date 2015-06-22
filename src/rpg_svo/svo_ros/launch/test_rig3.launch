@@ -18,4 +18,7 @@
 
   </node>
 
+  <node pkg="rosbag" type="play" name="bagplay_airground" args="$(find svo_ros)/bag/airground.bag" output="screen">
+  </node>
+
 </launch>

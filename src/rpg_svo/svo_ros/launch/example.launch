@@ -21,6 +21,6 @@
   <node pkg="rosbag" type="play" name="bagplay_airground" args="$(find svo_ros)/bag/airground.bag" output="screen">
   </node>
 
-   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find svo_ros)/rviz_cfg/rviz_config.rviz"/>
+   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find svo_ros)/rviz_config.rviz"/>
 
 </launch>

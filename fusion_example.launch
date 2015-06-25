@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<launch>
+	<arg name="fcu_url" default="serial:///dev/ttyACM0:921600" />
+	<arg name="gcs_url" default="udp://:14556@192.168.0.105:14550" />
+	<arg name="tgt_system" default="1" />
+	<arg name="tgt_component" default="50" />
+
+
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find svo_ros)/rviz_config.rviz"/>
+
+    <node pkg="rosbag" type="play" name="bagplay_airground" args="$(find svo_ros)/bag/airground.bag" output="screen">
+    </node>
+ 
+
+    <node pkg="svo_ros" type="vo" name="svo" clear_params="true" output="screen">
+        <param name="cam_topic" value="/camera/image_raw" type="str" />
+        <rosparam file="$(find svo_ros)/param/camera_atan.yaml" />
+        <rosparam file="$(find svo_ros)/param/vo_px4.yaml" />
+        <rosparam file="$(find svo_ros)/param/vo_fast.yaml" />
+	<param name="accept_console_user_input" value="true" />
+	<param name="publish_world_in_cam_frame" value="false" />
+	<param name="init_rx" value="3.1415289878" />
+    </node>
+ 
+
+    <node name="msf_pose_sensor" pkg="msf_updates" type="pose_sensor" clear_params="true" output="screen" >
+        <remap from="msf_core/imu_state_input" to="/mavros/imu/data" />
+        <remap from="msf_updates/pose_with_covariance_input" to="/svo/pose" />
+	<rosparam file="$(find msf_updates)/px4_svo_sensor_fix.yaml"/>
+   </node>
+ 
+</launch>

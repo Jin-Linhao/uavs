@@ -42,7 +42,7 @@
     </node>
  
 
-    <node pkg="svo_ros" type="vo" name="svo" clear_params="true" output="screen">
+    <node pkg="svo_ros" type="vo" name="svo" clear_params="true">
         <param name="cam_topic" value="/camera/image_mono" type="str" />
         <rosparam file="$(find svo_ros)/param/camera_pinhole.yaml" />
         <rosparam file="$(find svo_ros)/param/vo_px4.yaml" />
@@ -57,5 +57,9 @@
         <remap from="msf_updates/pose_with_covariance_input" to="/svo/pose" />
 	<rosparam file="$(find msf_updates)/px4_svo_sensor_fix.yaml"/>
    </node>
+
+   <node pkg="rosservice" type="rosservice" name="initialize" args="call --wait /msf_pose_sensor/pose_sensor/initialize_msf_scale 1"/>
+
+
  
 </launch>

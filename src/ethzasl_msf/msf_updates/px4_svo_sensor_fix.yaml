@@ -31,7 +31,7 @@ pose_sensor/init/p_ic/y: 0.0
 pose_sensor/init/p_ic/z: 0.0
 
 pose_sensor/pose_absolute_measurements: true
-pose_sensor/pose_use_fixed_covariance: false
+pose_sensor/pose_use_fixed_covariance: true
 pose_sensor/pose_measurement_world_sensor: false # we do not publish the world in camera frame as set in SVO parameters.
 
 pose_sensor/pose_fixed_scale: false

@@ -51,6 +51,10 @@
 	<param name="init_rx" value="3.1415289878" />
     </node>
  
+<!--
+    <node pkg="svo_ros" type="svo_msf_link" name="svo_msf_link" args="fcu cam_pos">
+    </node>
+ -->
 
     <node name="msf_pose_sensor" pkg="msf_updates" type="pose_sensor" clear_params="true" output="screen" >
         <remap from="msf_core/imu_state_input" to="/mavros/imu/data" />

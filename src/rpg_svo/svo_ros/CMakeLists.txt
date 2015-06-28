@@ -70,3 +70,6 @@ ADD_EXECUTABLE(vo src/vo_node.cpp)
 TARGET_LINK_LIBRARIES(vo svo_visualizer)
 ADD_EXECUTABLE(benchmark src/benchmark_node.cpp)
 TARGET_LINK_LIBRARIES(benchmark svo_visualizer)
+
+ADD_EXECUTABLE(svo_msf_link src/svo_msf_link_node.cpp)
+TARGET_LINK_LIBRARIES(svo_msf_link svo_visualizer)

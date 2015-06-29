@@ -193,7 +193,8 @@ private:
 
 		// publish data
 		imu_msg->header.frame_id = frame_id;
-		imu_msg->header.stamp = uas->synchronise_stamp(att.time_boot_ms);
+		//imu_msg->header.stamp = uas->synchronise_stamp(att.time_boot_ms);
+                imu_msg->header.stamp = ros::Time::now();
 		imu_pub.publish(imu_msg);
 	}
 

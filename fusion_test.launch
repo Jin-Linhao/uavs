@@ -50,11 +50,9 @@
 	<param name="publish_world_in_cam_frame" value="false" />
 	<param name="init_rx" value="3.1415289878" />
     </node>
- 
-<!--
-    <node pkg="svo_ros" type="svo_msf_link" name="svo_msf_link" args="fcu cam_pos">
+
+    <node pkg="tf" type="static_transform_publisher" name="svo_msf_link" args="0 0 0 0 0 0 1 fcu cam_pos 50">
     </node>
- -->
 
     <node name="msf_pose_sensor" pkg="msf_updates" type="pose_sensor" clear_params="true" output="screen" >
         <remap from="msf_core/imu_state_input" to="/mavros/imu/data" />

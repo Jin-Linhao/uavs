@@ -9,7 +9,7 @@
 	</node>
 	-->
 
-<!--
+<!--   This node need to be run outside the launchfile, or it will not be run
 	<node pkg="lsd_slam_viewer" type="viewer" name="viewer"/> 
 -->
 

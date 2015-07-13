@@ -1,6 +1,9 @@
-# IOTUAV-Mono-SLAM: Large-Scale Direct Monocular SLAM
+#  Mono-SLAM for Internet of Things Lab
+
 
 Edited by Wang Chen:
+
+Only for running LSD: 
 
 When you install opencv2.4.9, Please remember to ENABLE NONFREE MODULE and DISABLE CUDA MODULE.
 

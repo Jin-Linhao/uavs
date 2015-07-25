@@ -9,7 +9,7 @@ When you install opencv2.4.9, Please remember to ENABLE NONFREE MODULE and DISAB
 
 you can set opencv2.4.9 compile settings using: 
 
-cmake -D WITH_CUDA=ON -D CMAKE_BUILD_TYPE=RELEASE -D -D WITH_OPENCL=OFF ..
+cmake -D WITH_CUDA=OFF -D CMAKE_BUILD_TYPE=RELEASE -D WITH_OPENCL=OFF ..
 
 when you compile and it says can not load nonfree module, please run:
 

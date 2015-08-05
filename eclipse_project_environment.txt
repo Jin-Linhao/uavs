@@ -1,0 +1,13 @@
+ROS_ROOT
+/opt/ros/indigo/share/ros
+
+
+ROS_PACKAGE_PATH
+/opt/ros/indigo/share:/opt/ros/indigo/stacks
+
+PYTHONPATH
+/opt/ros/indigo/lib/python2.7/dist-packages
+
+PATH
+/opt/ros/indigo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games
+

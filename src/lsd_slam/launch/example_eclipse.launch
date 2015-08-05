@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+
+
+
+	<node pkg="rosbag" type="play" name="rosbag_play_lsdroom" output="screen"
+		args="-l $(find lsd_slam_core)/../bag/LSD_room.bag"/>
+
+        <node pkg="rostopic" type="rostopic" name="echo_pose_node" output="screen" args="echo /lsd_slam/pose">
+	</node>
+
+
+</launch>

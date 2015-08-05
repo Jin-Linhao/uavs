@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<launch>
+	<arg name="fcu_url" default="serial:///dev/ttyUSB0:115200" />
+	<arg name="gcs_url" default="udp://:14556@192.168.0.105:14550" />
+	<arg name="tgt_system" default="1" />
+	<arg name="tgt_component" default="50" />
+ 
+
+    <node name="mavros" pkg="mavros" type="mavros_node" output="screen">
+		<remap from="/mavros/vision_pose/vision" to="/msf_core/pose" />
+        
+		<param name="fcu_url" value="$(arg fcu_url)" />
+		<param name="gcs_url" value="$(arg gcs_url)" />
+		<param name="target_system_id" value="$(arg tgt_system)" />
+		<param name="target_component_id" value="$(arg tgt_component)" />
+ 
+		<rosparam command="load" file="$(find mavros)/launch/px4_blacklist.yaml" />
+ 
+		<!-- enable heartbeat send and reduce timeout -->
+		<param name="conn_heartbeat" value="5.0" />
+		<param name="conn_timeout" value="10.0" />
+		<param name="startup_px4_usb_quirk" value="true" />
+		<param name="vision_pose/pose_with_covariance" value="true" />
+ 
+    </node>
+
+ 
+</launch>

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(Ellipse)
+project(ellipse)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -13,7 +13,6 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system)
-option(ENABLE_GENERIC "Enables generic build that should run on any little-endian host" ON)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -82,7 +81,7 @@ option(ENABLE_GENERIC "Enables generic build that should run on any little-endia
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES Ellipse
+  LIBRARIES ellipse
   CATKIN_DEPENDS mavros roscpp rospy std_msgs
   DEPENDS system_lib
 )
@@ -97,11 +96,11 @@ catkin_package(
 include_directories(
    include
   ${catkin_INCLUDE_DIRS}
-   src/lib
+   src/cpp
 )
 
  #Declare a cpp library
-add_library(Ellipse
+add_library(ellipse
     src/cpp/binaryLogs/binaryLogDebug.cpp
     src/cpp/binaryLogs/binaryLogDvl.cpp
     src/cpp/binaryLogs/binaryLogEkf.cpp
@@ -144,15 +143,15 @@ add_library(Ellipse
 )
 
 ## Declare a cpp executable
-add_executable(Ellipse_node src/Ellipse_node.cpp)
+add_executable(ellipse_node src/ellipse_node.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(Ellipse_node Ellipse_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(Ellipse_node
-   Ellipse
+target_link_libraries(ellipse_node
+   ellipse
    ${catkin_LIBRARIES}
  )
 

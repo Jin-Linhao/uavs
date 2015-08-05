@@ -228,7 +228,7 @@ SbgErrorCode sbgInterfaceSerialDestroy(SbgInterface *pHandle)
 		//
 		// Get the internal serial handle
 		//
-        hSerialHandle = (int32)((size_t)pHandle->handle);
+		hSerialHandle = (int32)pHandle->handle;
 		
 		//
 		// Close the port com
@@ -261,7 +261,7 @@ SbgErrorCode sbgInterfaceSerialFlush(SbgInterface *pHandle)
 		//
 		// Get the internal serial handle
 		//
-        hSerialHandle = (int32)((size_t)pHandle->handle);
+		hSerialHandle = (int32)pHandle->handle;
 		
 		//
 		// Flush our port
@@ -301,7 +301,7 @@ SbgErrorCode sbgInterfaceSerialChangeBaudrate(SbgInterface *pHandle, uint32 baud
 		//
 		// Get the internal serial handle
 		//
-        hSerialHandle = (int32)((size_t)pHandle->handle);
+		hSerialHandle = (int32)pHandle->handle;
 		
 		//
 		// Get the baud rate const for our Unix platform
@@ -373,7 +373,7 @@ SbgErrorCode sbgInterfaceSerialWrite(SbgInterface *pHandle, const void *pBuffer,
 		//
 		// Get the internal serial handle
 		//
-        hSerialHandle = (int32)((size_t)pHandle->handle);
+		hSerialHandle = (int32)pHandle->handle;
 
 		//
 		// Write the whole buffer
@@ -434,7 +434,7 @@ SbgErrorCode sbgInterfaceSerialRead(SbgInterface *pHandle, void *pBuffer, uint32
 		//
 		// Get the internal serial handle
 		//
-        hSerialHandle = (int32)((size_t)pHandle->handle);
+		hSerialHandle = (int32)pHandle->handle;
 		
 		//
         // Read our buffer

@@ -12,7 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 ## System dependencies are found with CMake's conventions
-find_package(Boost REQUIRED COMPONENTS system)
+#find_package(Boost REQUIRED COMPONENTS system)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -94,66 +94,37 @@ catkin_package(
 ## Your package locations should be listed before other locations
 #include_directories(include)
 include_directories(
-   include
-  ${catkin_INCLUDE_DIRS}
-   src/cpp
+#include
+src/cpp
+${catkin_INCLUDE_DIRS}
 )
 
  #Declare a cpp library
-add_library(ellipse
-    src/cpp/binaryLogs/binaryLogDebug.cpp
-    src/cpp/binaryLogs/binaryLogDvl.cpp
-    src/cpp/binaryLogs/binaryLogEkf.cpp
-    src/cpp/binaryLogs/binaryLogEvent.cpp
-    src/cpp/binaryLogs/binaryLogGps.cpp
-    src/cpp/binaryLogs/binaryLogImu.cpp
-    src/cpp/binaryLogs/binaryLogMag.cpp
-    src/cpp/binaryLogs/binaryLogOdometer.cpp 
-    src/cpp/binaryLogs/binaryLogPressure.cpp
-    src/cpp/binaryLogs/binaryLogs.cpp
-    src/cpp/binaryLogs/binaryLogShipMotion.cpp
-    src/cpp/binaryLogs/binaryLogStatus.cpp
-    src/cpp/binaryLogs/binaryLogUsbl.cpp
-    src/cpp/binaryLogs/binaryLogUtc.cpp
-    # Create all objects for commands directory
-    src/cpp/commands/commandsAdvanced.cpp 
-    src/cpp/commands/commandsCommon.cpp 
-    src/cpp/commands/commandsEvent.cpp
-    src/cpp/commands/commandsGnss.cpp
-    src/cpp/commands/commandsInfo.cpp 
-    src/cpp/commands/commandsInterface.cpp 
-    src/cpp/commands/commandsMag.cpp
-    src/cpp/commands/commandsOdo.cpp
-    src/cpp/commands/commandsOutput.cpp
-    src/cpp/commands/commandsSensor.cpp
-    src/cpp/commands/commandsSettings.cpp
-    # Create all objects for interfaces directory
-    src/cpp/interfaces/interfaceFile.cpp
-    src/cpp/interfaces/interfaceUdp.cpp 
-    src/cpp/interfaces/interfaceSerialUnix.cpp 
-    # Create all objects for misc directory
-    src/cpp/misc/sbgCrc.cpp 
-    src/cpp/misc/transfer.cpp 
-    # Create all objects for protocol directory
-    src/cpp/protocol/protocol.cpp 
-    # Create all objects for time directory
-    src/cpp/time/sbgTime.cpp
-    # Create all objets for the root directory
-    src/cpp/sbgECom.cpp
-)
+
 
 ## Declare a cpp executable
-add_executable(ellipse_node src/ellipse_node.cpp)
+add_executable(ellipse_node src/ellipse_node.c)
+add_executable(example src/ellipseMinimal.c)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(Ellipse_node Ellipse_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(ellipse_node
-   ellipse
+#link_directories(
+#  src
+#)
+target_link_libraries(ellipse_node "/home/jeffsan/uavs/src/ellipse/src/libSbgECom.a"
    ${catkin_LIBRARIES}
  )
+
+#link_directories(
+#  src
+#)
+target_link_libraries(example "/home/jeffsan/uavs/src/ellipse/src/libSbgECom.a"
+   ${catkin_LIBRARIES}
+ )
+
 
 #############
 ## Install ##

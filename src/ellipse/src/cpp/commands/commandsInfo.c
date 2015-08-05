@@ -1,6 +1,6 @@
 #include "commandsInfo.h"
 #include "../misc/sbgStreamBuffer.h"
-#include <stdlib.h>
+
 //----------------------------------------------------------------------//
 //- Info commands		                                               -//
 //----------------------------------------------------------------------//
@@ -13,7 +13,6 @@
  */
 SbgErrorCode sbgEComCmdGetInfo(SbgEComHandle *pHandle, SbgEComDeviceInfo *pInfo)
 {
-    printf("---");
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	uint32				trial;
 	uint16				receivedCmd;

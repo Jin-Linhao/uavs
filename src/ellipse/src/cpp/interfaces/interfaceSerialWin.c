@@ -1,5 +1,5 @@
 #include "interfaceSerial.h"
-//#include <windows.h>
+#include <windows.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>

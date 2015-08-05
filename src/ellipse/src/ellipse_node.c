@@ -24,8 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <iostream>
-using namespace std;
+
 //----------------------------------------------------------------------//
 //  Call backs                                                          //
 //----------------------------------------------------------------------//
@@ -127,7 +126,7 @@ int main(int argc, char** argv)
 	SbgInterface			sbgInterface;
 	int32					retValue = 0;
 	SbgEComDeviceInfo		deviceInfo;
-        cout<<"123"<<endl;
+		
 	//
 	// Create an interface: 
 	// We can choose either a serial for real time operation, or file for previously logged data parsing
@@ -144,7 +143,6 @@ int main(int argc, char** argv)
 		//
 		// Create the sbgECom library and associate it with the created interfaces
 		//
-
 		errorCode = sbgEComInit(&comHandle, &sbgInterface);
 
 		//
@@ -155,7 +153,6 @@ int main(int argc, char** argv)
 			//
 			// Get device inforamtions
 			//
-
 			errorCode = sbgEComCmdGetInfo(&comHandle, &deviceInfo);
 
 			//

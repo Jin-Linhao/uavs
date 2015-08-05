@@ -24,7 +24,7 @@
 #include "../sbgCommon.h"
 #include "sbgSwap.h"
 #include <string.h>
-#include <stdio.h>
+
 //----------------------------------------------------------------------//
 //- Structure definitions                                              -//
 //----------------------------------------------------------------------//
@@ -175,9 +175,7 @@ SBG_INLINE uint32 sbgStreamBufferGetLength(SbgStreamBuffer *pHandle)
 	//
 	// Return the number of bytes between the begin of the stream and the current pointer
 	//
-    printf("123");
-    return (int)*(pHandle->pCurrentPtr) - (int)*(pHandle->pBufferPtr);
-    printf("1234");
+	return ((uint32)pHandle->pCurrentPtr - (uint32)pHandle->pBufferPtr);
 }
 
 /*!
@@ -241,9 +239,7 @@ SBG_INLINE SbgErrorCode sbgStreamBufferSeek(SbgStreamBuffer *pHandle, uint32 off
  */
 SBG_INLINE uint32 sbgStreamBufferTell(SbgStreamBuffer *pHandle)
 {
-    printf("1235");
-    return (uint32)*(pHandle->pCurrentPtr) - (uint32)*(pHandle->pBufferPtr);
-    printf("123456");
+	return (uint32)pHandle->pCurrentPtr - (uint32)pHandle->pBufferPtr;
 }
 
 /*!

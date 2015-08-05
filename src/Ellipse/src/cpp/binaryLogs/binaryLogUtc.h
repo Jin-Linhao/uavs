@@ -1,0 +1,138 @@
+/*!
+ *	\file		binaryLogUtc.h
+ *  \author		SBG Systems (Raphael Siryani)
+ *	\date		20 February 2013
+ *
+ *	\brief		This file is used to parse received UTC binary logs.
+ *
+ *	\section CodeCopyright Copyright Notice 
+ *	Copyright (C) 2007-2013, SBG Systems SAS. All rights reserved.
+ *	
+ *	This source code is intended for use only by SBG Systems SAS and
+ *	those that have explicit written permission to use it from
+ *	SBG Systems SAS.
+ *	
+ *	THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
+ *	KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ *	IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+ *	PARTICULAR PURPOSE.
+ */
+#ifndef __BINARY_LOG_UTC_H__
+#define __BINARY_LOG_UTC_H__
+
+#include "../sbgCommon.h"
+
+//----------------------------------------------------------------------//
+//- Clock status definitions                                           -//
+//----------------------------------------------------------------------//
+
+/*!
+ * Clock status and UTC time status definitions.
+ */
+#define SBG_ECOM_CLOCK_STATUS_SHIFT			(1u)					/*!< Shift used to extract the clock status part. */
+#define SBG_ECOM_CLOCK_STATUS_MASK			(0x000Fu)				/*!< Mask used to keep only the clock status part. */
+#define SBG_ECOM_CLOCK_UTC_STATUS_SHIFT		(6u)					/*!< Shift used to extract the clock UTC status part. */
+#define SBG_ECOM_CLOCK_UTC_STATUS_MASK		(0x000Fu)				/*!< Mask used to keep only the clock UTC status part. */
+
+/*!
+ * Clock status mask definitions.
+ */
+#define SBG_ECOM_CLOCK_STABLE_INPUT			(0x0001u << 0)			/*!< Set to 1 if a stable input clock could be used to synchronized the internal clock. */
+#define SBG_ECOM_CLOCK_UTC_SYNC				(0x0001u << 5)			/*!< The UTC time is synchronized with a PPS. */
+
+/*!
+ * Clock status enum.
+ */
+typedef enum _SbgEComClockStatus
+{
+	SBG_ECOM_CLOCK_ERROR			= 0,							/*!< An error has occurred on the clock estimation. */
+	SBG_ECOM_CLOCK_FREE_RUNNING		= 1,							/*!< The clock is only based on the internal crystal. */
+	SBG_ECOM_CLOCK_STEERING			= 2,							/*!< A PPS has been detected and the clock is converging to it. */
+	SBG_ECOM_CLOCK_VALID			= 3								/*!< The clock has converged to the PPS and is within 500ns. */
+} SbgEComClockStatus;
+
+/*!
+ * Status for the UTC time data.
+ */
+typedef enum _SbgEComClockUtcStatus
+{
+	SBG_ECOM_UTC_INVALID			= 0,							/*!< The UTC time is not known, we are just propagating the UTC time internally. */
+	SBG_ECOM_UTC_NO_LEAP_SEC		= 1,							/*!< We have received valid UTC time information but we don't have the leap seconds information. */
+	SBG_ECOM_UTC_VALID				= 2								/*!< We have received valid UTC time data with valid leap seconds. */
+} SbgEComClockUtcStatus;
+
+//----------------------------------------------------------------------//
+//- Clock status helpers methods                                       -//
+//----------------------------------------------------------------------//
+
+/*!
+ * Method used to read the clock status from a status field.
+ * \param[in]	status				Status field to extract the clock status from it.
+ * \return							The extracted clock status.
+ */
+SBG_INLINE SbgEComClockStatus sbgEComLogUtcGetClockStatus(uint16 status)
+{
+	return (SbgEComClockStatus)((status >> SBG_ECOM_CLOCK_STATUS_SHIFT) & SBG_ECOM_CLOCK_STATUS_MASK);
+}
+
+/*!
+ * Method used to read the UTC time status from a clock status field.
+ * \param[in]	status				Status field to extract the UTC time status from it.
+ * \return							The extracted UTC time status.
+ */
+SBG_INLINE SbgEComClockUtcStatus sbgEComLogUtcGetClockUtcStatus(uint16 status)
+{
+	return (SbgEComClockUtcStatus)((status >> SBG_ECOM_CLOCK_UTC_STATUS_SHIFT) & SBG_ECOM_CLOCK_UTC_STATUS_MASK);
+}
+
+/*!
+ * Method used to write the clock status field.
+ * \param[in]	clockStatus			The clock status to set.
+ * \param[in]	utcStatus			The UTC time status to set.
+ * \param[in]	masks				Bit mask to set.
+ * \return							The build clock status field.
+ */
+SBG_INLINE uint16 sbgEComLogUtcBuildClockStatus(SbgEComClockStatus clockStatus, SbgEComClockUtcStatus utcStatus, uint16 masks)
+{
+	//
+	// Create the combined status field
+	//
+	return	((((uint16)clockStatus)&SBG_ECOM_CLOCK_STATUS_MASK) << SBG_ECOM_CLOCK_STATUS_SHIFT) |
+			((((uint16)utcStatus)&SBG_ECOM_CLOCK_UTC_STATUS_MASK) << SBG_ECOM_CLOCK_UTC_STATUS_SHIFT) | masks;
+}
+
+//----------------------------------------------------------------------//
+//- Log structure definitions                                          -//
+//----------------------------------------------------------------------//
+
+/*!
+ *	Structure that stores data for the SBG_ECOM_LOG_UTC_TIME message.
+ */
+typedef struct _SbgLogUtcData
+{
+	uint32	timeStamp;					/*!< Time in us since the sensor power up. */
+	uint16	status;						/*!< Reserved for future use. */
+	uint16	year;						/*!< Year for example: 2013. */
+	int8	month;						/*!< Month in year [1 .. 12]. */
+	int8	day;						/*!< Day in month [1 .. 31]. */
+	int8	hour;						/*!< Hour in day [0 .. 23]. */
+	int8	minute;						/*!< Minute in hour [0 .. 59]. */
+	int8	second;						/*!< Second in minute [0 .. 60]. (60 is used only when a leap second is added) */
+	int32	nanoSecond;					/*!< Nanosecond of current second in ns. */
+	uint32	gpsTimeOfWeek;				/*!< GPS time of week in ms. */
+} SbgLogUtcData;
+
+//----------------------------------------------------------------------//
+//- Operations                                                         -//
+//----------------------------------------------------------------------//
+
+/*!
+ *	Parse data for the SBG_ECOM_LOG_UTC_DATA message and fill the corresponding structure.
+ *	\param[in]	pPayload					Read only pointer on the payload buffer.
+ *	\param[in]	payloadSize					Payload size in bytes.
+ *	\param[out]	pOutputData					Pointer on the output structure that stores parsed data.
+ *	\return									SBG_NO_ERROR if the payload has been parsed.
+ */
+SbgErrorCode sbgEComBinaryLogParseUtcData(const void *pPayload, uint32 payloadSize, SbgLogUtcData *pOutputData);
+
+#endif

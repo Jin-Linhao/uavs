@@ -24,7 +24,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 //----------------------------------------------------------------------//
 //  Call backs                                                          //
 //----------------------------------------------------------------------//
@@ -48,7 +47,7 @@ SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComCmdId logCmd, const Sb
 		//
 		// Simply display euler angles in real time
 		//
-        printf("Euler Angles:\n      %3.1f\t%3.1f\t%3.1f\tStd Dev:%3.1f\t%3.1f\t%3.1f\n",
+        printf("EULER %f %f %f %f %f %f\n",
                 pLogData->ekfEulerData.euler[0]*180.0/SBG_PI,
                 pLogData->ekfEulerData.euler[1]*180.0/SBG_PI,
                 pLogData->ekfEulerData.euler[2]*180.0/SBG_PI,
@@ -57,7 +56,7 @@ SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComCmdId logCmd, const Sb
                 pLogData->ekfEulerData.eulerStdDev[2]*180.0/SBG_PI);
 		break;
      case SBG_ECOM_LOG_EKF_NAV:
-        printf("pose!:\n      %d,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%d\n",
+        printf("POSE %d %f %f %f %f %f %f %f %f %f %f %f %f %f %d\n",
                pLogData->ekfNavData.timeStamp,
                pLogData->ekfNavData.velocity[0],
                pLogData->ekfNavData.velocity[1],
@@ -76,7 +75,7 @@ SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComCmdId logCmd, const Sb
                 );
         break;
      case SBG_ECOM_LOG_EKF_QUAT:
-        printf("Quat:\n       %d,%f,%f,%f,%f,%d\n",
+        printf("QUAT %d %f %f %f %f %d\n",
                 pLogData->ekfQuatData.timeStamp,
                 pLogData->ekfQuatData.quaternion[0],
                 pLogData->ekfQuatData.quaternion[1],
@@ -86,7 +85,7 @@ SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComCmdId logCmd, const Sb
                 pLogData->ekfQuatData.status);
         break;
       case SBG_ECOM_LOG_IMU_DATA:
-          printf("IMU:\n       %d,%d,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f\n",
+          printf("IMU %d %d %f %f %f %f %f %f %f %f %f %f %f %f %f\n",
                 pLogData->imuData.timeStamp,
                 pLogData->imuData.status,
                 pLogData->imuData.accelerometers[0],
@@ -113,13 +112,7 @@ SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComCmdId logCmd, const Sb
 //  Main program                                                        //
 //----------------------------------------------------------------------//
 
-/*!
- *	Main entry point.
- *	\param[in]	argc		Number of input arguments.
- *	\param[in]	argv		Input arguments as an array of strings.
- *	\return					0 if no error and -1 in case of error.
- */
-int main(int argc, char** argv)
+int main(char* argc, char** argv)
 {
 	SbgEComHandle			comHandle;
 	SbgErrorCode			errorCode;
@@ -133,7 +126,7 @@ int main(int argc, char** argv)
 	// Note interface closing is also differentiated !
 	//
 	//errorCode = sbgInterfaceSerialCreate(&sbgInterface, "/dev/cu.usbserial-FTF43CDS", 115200);		// Example for Unix using a FTDI Usb2Uart converter
-	errorCode = sbgInterfaceSerialCreate(&sbgInterface, "/dev/ttyUSB0", 115200);								// Example for Windows serial communication
+	errorCode = sbgInterfaceSerialCreate(&sbgInterface, argv[1], 115200);								// Example for Windows serial communication
 
 	//
 	// Test that the interface has been created
@@ -164,7 +157,7 @@ int main(int argc, char** argv)
 			}
 			else
 			{
-				fprintf(stderr, "ellipseMinimal: Unable to get device information.\n");
+				printf("ellipseMinimal: Unable to get device information.\n");
 			}
 
 			//
@@ -172,11 +165,11 @@ int main(int argc, char** argv)
 			//
 			if (sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_IMU_DATA, SBG_ECOM_OUTPUT_MODE_DIV_8) != SBG_NO_ERROR)
 			{
-				fprintf(stderr, "ellipseMinimal: Unable to configure output log SBG_ECOM_LOG_IMU_DATA.\n");
+				printf("ellipseMinimal: Unable to configure output log SBG_ECOM_LOG_IMU_DATA.\n");
 			}
 			if (sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EKF_EULER, SBG_ECOM_OUTPUT_MODE_DIV_8) != SBG_NO_ERROR)
 			{
-				fprintf(stderr, "ellipseMinimal: Unable to configure output log SBG_ECOM_LOG_EKF_EULER.\n");
+				printf("ellipseMinimal: Unable to configure output log SBG_ECOM_LOG_EKF_EULER.\n");
 			}
 
 			//
@@ -211,7 +204,7 @@ int main(int argc, char** argv)
 				}
 				else
 				{
-					fprintf(stderr, "Error\n");
+					printf("Error\n");
 				}
 			}
 
@@ -225,7 +218,7 @@ int main(int argc, char** argv)
 			//
 			// Unable to initialize the sbgECom
 			//
-			fprintf(stderr, "ellipseMinimal: Unable to initialize the sbgECom library.\n");
+			printf("ellipseMinimal: Unable to initialize the sbgECom library.\n");
 			retValue = -1;
 		}
 		
@@ -241,7 +234,7 @@ int main(int argc, char** argv)
 		//
 		// Unable to create the interface
 		//
-		fprintf(stderr, "ellipseMinimal: Unable to create the interface.\n");
+		printf("ellipseMinimal: Unable to create the interface.\n");
 		retValue = -1;
 	}
 

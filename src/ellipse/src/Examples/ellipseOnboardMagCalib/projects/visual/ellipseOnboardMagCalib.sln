@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ellipseOnboardMagCalib", "ellipseOnboardMagCalib.vcxproj", "{1003CC71-C4C1-46DA-BC7F-F013054C1BB7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1003CC71-C4C1-46DA-BC7F-F013054C1BB7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1003CC71-C4C1-46DA-BC7F-F013054C1BB7}.Debug|Win32.Build.0 = Debug|Win32
+		{1003CC71-C4C1-46DA-BC7F-F013054C1BB7}.Release|Win32.ActiveCfg = Release|Win32
+		{1003CC71-C4C1-46DA-BC7F-F013054C1BB7}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

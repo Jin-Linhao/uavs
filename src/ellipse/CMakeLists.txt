@@ -107,7 +107,7 @@ ${catkin_INCLUDE_DIRS}
 
 ## Declare a cpp executable
 #add_executable(ellipse_node src/ellipse_node.c)
-add_executable(ellipse_node src/ellipseMinimal.c)
+#add_executable(ellipse_node src/ellipseMinimal.c)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -117,10 +117,10 @@ add_executable(ellipse_node src/ellipseMinimal.c)
 #link_directories(
 #  src
 #)
-target_link_libraries(ellipse_node
-   "/home/jeffsan/uavs/src/ellipse/src/libSbgECom.a" 
-   ${catkin_LIBRARIES}
- )
+#target_link_libraries(ellipse_node
+#   "/home/jeffsan/uavs/src/ellipse/src/libSbgECom.a" 
+#   ${catkin_LIBRARIES}
+# )
 
 #link_directories(
 #  src

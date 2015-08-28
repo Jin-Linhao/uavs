@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+	<include file="$(find ueye_cam)/launch/bayer_rggb_image_proc.launch" />
+ 
+	<node name="proc" ns="camera" pkg="image_proc" type="image_proc" args="">
+	</node>
+ 
+	<node name="calibrator" pkg="camera_calibration" type="cameracalibrator.py" args=" --size 11x7 --square 0.0195" clear_params="true" output="screen" >
+		<remap from="image" to="/camera/image_mono" />
+		<remap from="camera" to="/camera" />
+	</node>
+</launch>

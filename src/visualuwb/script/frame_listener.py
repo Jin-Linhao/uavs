@@ -25,7 +25,7 @@ if __name__ == '__main__':
     while not rospy.is_shutdown():
         try:
             ned_cam_tf = tfBuffer.lookup_transform('ned', 'cam', rospy.Time.now(),rospy.Duration(0.5))
-            print ned_cam_tf.transform.quaternion_from_euler()
+            #print ned_cam_tf.transform.quaternion_from_euler()
             print ned_cam_tf
         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
             rate.sleep()

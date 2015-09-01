@@ -19,9 +19,6 @@ if __name__ == '__main__':
     rospy.init_node('uav_tf')
     
     br  = tf2.TransformBroadcaster()
-    #body_br = tf2.TransformBroadcaster()
-    #uwb_br  = tf2.TransformBroadcaster()
-    #cam_br  = tf2.TransformBroadcaster()
     
     map_tf = geometry_msgs.msg.TransformStamped()
     map_tf.header.frame_id = "ned"
@@ -40,48 +37,47 @@ if __name__ == '__main__':
     cam_tf.child_frame_id = "cam"
     
     
-    map_tf.transform.translation.x = 1
-    map_tf.transform.translation.y = 1
+    map_tf.transform.translation.x = 4
+    map_tf.transform.translation.y = 4
     map_tf.transform.translation.z = 0.0
     map_tf.transform.rotation.x = 0.0
     map_tf.transform.rotation.y = 0.0
     map_tf.transform.rotation.z = 0.0
     map_tf.transform.rotation.w = 1.0
 
-    rate = rospy.Rate(10.0)
+    rate = rospy.Rate(30.0)
     while not rospy.is_shutdown():
         
         map_tf.header.stamp = rospy.Time.now()  
         br.sendTransform(map_tf)
-        #rate.sleep()
+
         
         x = rospy.Time.now().to_sec() * math.pi 
         body_tf.header.stamp = rospy.Time.now()   
         body_tf.transform.translation.x = 1 * math.sin(x)
         body_tf.transform.translation.y = 1 * math.cos(x)
-        body_tf.transform.translation.z = 1.0
+        body_tf.transform.translation.z = 3.0
         body_tf.transform.rotation.x = 0.0
         body_tf.transform.rotation.y = 0.0
         body_tf.transform.rotation.z = 0.0
         body_tf.transform.rotation.w = 1.0
         br.sendTransform(body_tf)
-        #rate.sleep()
         
         
         uwb_tf.header.stamp = rospy.Time.now()   
-        uwb_tf.transform.translation.x = 0.1
-        uwb_tf.transform.translation.y = 0.1
-        uwb_tf.transform.translation.z = 0.1
+        uwb_tf.transform.translation.x = 0.5
+        uwb_tf.transform.translation.y = 0.5
+        uwb_tf.transform.translation.z = 0.5
         uwb_tf.transform.rotation.x = 0.0
         uwb_tf.transform.rotation.y = 0.0
         uwb_tf.transform.rotation.z = 0.0
         uwb_tf.transform.rotation.w = 1.0
         br.sendTransform(uwb_tf)
-        #rate.sleep()
+
         
         cam_tf.header.stamp = rospy.Time.now()   
-        cam_tf.transform.translation.x = -0.1
-        cam_tf.transform.translation.y = 0.1 
+        cam_tf.transform.translation.x = -0.5
+        cam_tf.transform.translation.y = 0.5 
         cam_tf.transform.translation.z = 0.0
         cam_tf.transform.rotation.x = 0.3
         cam_tf.transform.rotation.y = 0.5

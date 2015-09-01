@@ -72,3 +72,4 @@ qtcreator-*
 
 # Catkin custom files
 CATKIN_IGNORE
+src/visualuwb/.metadata/*

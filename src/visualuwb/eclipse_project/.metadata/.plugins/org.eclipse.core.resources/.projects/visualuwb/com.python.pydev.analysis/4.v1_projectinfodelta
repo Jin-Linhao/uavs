@@ -1,0 +1,14 @@
+INSTUPframe
+/home/jeffsan/uavs/src/visualuwb/script/frame.py
+INFOS:&&3|1|2|0&&3|3|2|0&&3|4|2|0&&3|5|2|0&&3|6|2|0&&3|7|2|0&&3|8|2|0&&3|9|2|0&&3|10|2|0&&3|11|2|0
+rate=10
+frame=2
+map_br=1
+map_tf=6
+cam_tf=9
+uwb_br=4
+uwb_tf=8
+cam_br=5
+body_tf=7
+x=11
+body_br=3

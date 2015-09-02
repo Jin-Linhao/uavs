@@ -1,12 +1,59 @@
 #!/usr/bin/env python
 from matplotlib.lines import lineStyles
+from numpy.oldnumeric.linear_algebra import inverse
 __author__ = 'Jeffsan'
 from numpy import *
+from scipy.integrate import odeint
 from pykalman import KalmanFilter
 from pykalman import UnscentedKalmanFilter,AdditiveUnscentedKalmanFilter
 #import matplotlib as plt
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+
+def func(y,t):
+    return cos(t)
+
+def transition_function(x, t0, u):
+    ''' Defined by Jeffsan Wang
+        The state equation, dx/dt = f(x,t0,u)
+        Computes the derivative of state at time t0 on the condition of input u.
+        x[0:3] --> Position in local frame
+        x[3:6] --> Euler angle of body frame expressed in inertial frame
+        x[6:9] --> Velocity in aircraft body frame
+        x[9]   --> Bais in Yaw direction of body frame
+        
+        u[0:3] --> Accelaration in body frame
+        u[3:6] --> Angle rate of body frame expressed in inertial frame  
+        '''
+    g = 9.8
+    
+    [pos, eul, vel, bias]    = [x[0:3], x[3:6], x[6:9], x[9]]
+    [ax, ay, az, wx, wy, wz] = [u[0], u[1], u[2], u[3], u[4], u[5]]        
+    [phi, theta, psi]        = [eul[0], eul[1], eul[2]]
+    [vx, vy, vz]             = [vel[0], vel[1], vel[2]]
+    
+    R = array([[1, sin(phi)*tan(theta), cos(phi)*tan(theta)],
+               [0,     cos(phi),              -sin(phi)    ],
+               [0, sin(phi)/cos(theta), cos(phi)/cos(theta)]])
+    
+    T = []
+    
+    dev_pos   = dot(inverse(T), vel)
+    
+    dev_euler = dot(R, [wx, wy, wz])
+    
+    dev_vx = ax - g * sin(theta)          - wy * vz + wz * vy
+    dev_vy = ay + g * cos(theta)*sin(phi) - wz * vx + wx * vz
+    dev_vz = az + cos(theta)*cos(phi)     - wx * vy + wy * vx
+    dev_vel = [dev_vx, dev_vy, dev_vz]
+    
+    dev_bias = 0
+    
+    dev_x = [dev_pos, dev_euler, dev_vel, dev_bias]
+    return dev_x
+    
+    
+print 'int:', odeint(func, array([0,1]), [0, 2*pi])
 
 class FastVisionLocation:
     def __init__(self):

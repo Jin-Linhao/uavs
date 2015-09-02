@@ -86,7 +86,7 @@ class UWBLocation:
         
     def ukfinit(self):
 
-        self.ukf = UnscentedKalmanFilter(n_dim_obs = self.M, n_dim_state = self.N,
+        self.ukf = AdditiveUnscentedKalmanFilter(n_dim_obs = self.M, n_dim_state = self.N,
                                         transition_functions     = self.transition_function,
                                         observation_functions    = self.observation_function,
                                         transition_covariance    = self.Q,
@@ -99,13 +99,13 @@ class UWBLocation:
         (self.x, self.P) = self.ukf.filter_update(self.x, self.Q, anchor_dis)
         return (self.x, self.P)
 
-    def transition_function(self, state, noise):
+    def transition_function(self, state):
         return dot(self.A,state)
 
-    def observation_function(self, state, noise):
+    def observation_function(self, state):
         return linalg.norm(state[0:3] - self.anchor_pos)
 
-if __name__ != '__main__':
+if __name__ == '__main__':
 
     uwb = UWBLocation()
     

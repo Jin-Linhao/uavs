@@ -18,12 +18,13 @@ g = 9.80665
 N = 100
 t = 5
 
-x = array([[i, i, i*0.4, 0, 0, 0, 4.0/t, 4.0/t, 0.4*4.0/t, 0] for i in linspace(0,4,N)])
+x = array([[i, i, i*0.4, 0, 0, 0, 4.0/N, 4.0/N, 0.4*4.0/N, 0] for i in linspace(0,4,N)])
     
 Q  = zeros((x.shape[1],x.shape[1]))
-Q[0:3, 0:3] =  0.06*eye(3)
+Q[0:3, 0:3] =  0.01*eye(3)
 Q[3:6, 3:6] =  0.000001*eye(3)
-Q[6:9, 6:9] =  0.006*eye(3)
+Q[6:8, 6:8] =  0.0064*eye(2)
+Q[8,8]      =  0.0064
 Q[9,9]      =  0.0000001
     
 anchor = array([[-0.1,-0.1,0.8],[4,0,1.3],[4,4,0.2],[0,4,1.2]])
@@ -165,9 +166,9 @@ if __name__ == '__main__':
     
     
     ax = fig.add_subplot(224)
-    ax.plot(abs(xe[:,3]),color = 'red')
-    ax.plot(abs(xe[:,4]),color = 'blue')
-    ax.plot(abs(xe[:,5]),color = 'black')
+    ax.plot(abs(xe[:,6]-x[:,6]),color = 'red')
+    ax.plot(abs(xe[:,7]-x[:,7]),color = 'blue')
+    ax.plot(abs(xe[:,8]-x[:,8]),color = 'black')
 
     plt.show()
     

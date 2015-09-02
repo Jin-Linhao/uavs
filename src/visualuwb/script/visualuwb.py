@@ -15,22 +15,23 @@ import timeit
 
 
 g = 9.80665
-N = 800
-t = 20
+N = 100
+t = 5
 
 x = array([[i, i, i*0.4, 0, 0, 0, 4.0/t, 4.0/t, 0.4*4.0/t, 0] for i in linspace(0,4,N)])
     
 Q  = zeros((x.shape[1],x.shape[1]))
-Q[0:3, 0:3] =  0.0001*eye(3)
+Q[0:3, 0:3] =  0.06*eye(3)
 Q[3:6, 3:6] =  0.000001*eye(3)
-Q[6:9, 6:9] =  0.02*eye(3)
+Q[6:9, 6:9] =  0.006*eye(3)
 Q[9,9]      =  0.0000001
     
 anchor = array([[-0.1,-0.1,0.8],[4,0,1.3],[4,4,0.2],[0,4,1.2]])
     
 y = array([[linalg.norm(x[i,0:3]-anchor[i%4])] for i in range(0,N)])
 
-measure = y + random.randn(N,1)*0.1
+noise = random.randn(N,1)*0.1
+measure = y + noise
 
 
 def state_equation(x, t0, u):
@@ -157,9 +158,11 @@ if __name__ == '__main__':
     ax.plot(x[:,0], x[:,1], x[:,2])
 
     ax = fig.add_subplot(222)
+    ax.plot(abs(noise), color = 'black',linewidth=2.5)
     ax.plot(abs(xe[:,0]-x[:,0]),color = 'red')
     ax.plot(abs(xe[:,1]-x[:,1]),color = 'blue')
     ax.plot(abs(xe[:,2]-x[:,2]),color = 'black')
+    
     
     ax = fig.add_subplot(224)
     ax.plot(abs(xe[:,3]),color = 'red')
@@ -200,6 +203,7 @@ else:
     ax.plot(abs(xe[:,0]-x[:,0]),color = 'red')
     ax.plot(abs(xe[:,1]-x[:,1]),color = 'blue')
     ax.plot(abs(xe[:,2]-x[:,2]),color = 'black')
+   
     
     ax = fig.add_subplot(224)
     ax.plot(abs(xe[:,3]),color = 'red')

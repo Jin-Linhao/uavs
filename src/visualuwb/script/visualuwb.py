@@ -6,12 +6,32 @@ from numpy import *
 from numpy import matlib
 from scipy.integrate import odeint
 from pykalman import KalmanFilter
-from pykalman import UnscentedKalmanFilter,AdditiveUnscentedKalmanFilter
+from pykalman import UnscentedKalmanFilter, AdditiveUnscentedKalmanFilter
 #import matplotlib as plt
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+import timeit
+
+
 
 g = 9.80665
+N = 800
+t = 20
+
+x = array([[i, i, i*0.4, 0, 0, 0, 4.0/t, 4.0/t, 0.4*4.0/t, 0] for i in linspace(0,4,N)])
+    
+Q  = zeros((x.shape[1],x.shape[1]))
+Q[0:3, 0:3] =  0.0001*eye(3)
+Q[3:6, 3:6] =  0.000001*eye(3)
+Q[6:9, 6:9] =  0.02*eye(3)
+Q[9,9]      =  0.0000001
+    
+anchor = array([[-0.1,-0.1,0.8],[4,0,1.3],[4,4,0.2],[0,4,1.2]])
+    
+y = array([[linalg.norm(x[i,0:3]-anchor[i%4])] for i in range(0,N)])
+
+measure = y + random.randn(N,1)*0.1
+
 
 def state_equation(x, t0, u):
     ''' Defined by Jeffsan Wang
@@ -23,10 +43,8 @@ def state_equation(x, t0, u):
         x[9]   --> Bais in Yaw direction of body frame
         
         u[0:3] --> Accelaration in body frame
-        u[3:6] --> Angle rate of body frame expressed in inertial frame  
-        '''
+        u[3:6] --> Angle rate of body frame expressed in inertial frame  '''
 
-    
     [pos, eul, vel, bias]    = [x[0:3], x[3:6], x[6:9], x[9]]
     [ax, ay, az, wx, wy, wz] = [u[0], u[1], u[2], u[3], u[4], u[5]]        
     [phi, theta, psi]        = [eul[0], eul[1], eul[2]]
@@ -59,11 +77,6 @@ def state_equation(x, t0, u):
     dev_x = hstack((dev_pos, dev_euler, dev_vel, dev_bias))
     return dev_x
     
-xk= [0,0,0,0,0,0,0.1,0.1,0.1,0]
-t = [0, 10]
-u = tuple([[0,0,-g,0,0,0]])
-print 'int:', odeint(state_equation,xk, t, u)
-
 class FastVisionLocation:
     def __init__(self):
         self.M = 2
@@ -75,37 +88,87 @@ class FastVisionLocation:
 
 class UWBLocation:
     def __init__(self):
-        self.N = 6
+        self.N = 10
         self.M = 1
         self.x = zeros((1,self.N))[0]
-        self.Q = 0.06*eye(self.N) 
-        self.Q[-3:,-3:] = 0.1*self.Q[-3:,-3:]
         self.R = eye(1)*0.1
-        self.A = eye(self.N) + diag(ones((1,3))[0],3)
+        self.P = Q
+        self.time = -1
         self.ukfinit()
         
     def ukfinit(self):
 
-        self.ukf = UnscentedKalmanFilter(n_dim_obs = self.M, n_dim_state = self.N,
+        self.ukf = AdditiveUnscentedKalmanFilter(n_dim_obs = self.M, n_dim_state = self.N,
                                         transition_functions     = self.transition_function,
                                         observation_functions    = self.observation_function,
-                                        transition_covariance    = self.Q,
+                                        transition_covariance    = Q,
                                         observation_covariance   = self.R,
                                         initial_state_mean       = self.x,
-                                        initial_state_covariance = self.Q)
+                                        initial_state_covariance = Q)
 
-    def locate(self, anchor_dis, anchor_pos):
+    def locate(self, state, state_cov, time, anchor_dis, anchor_pos):
         self.anchor_pos = anchor_pos
-        (self.x, self.P) = self.ukf.filter_update(self.x, self.Q, anchor_dis)
+        if self.time == -1:
+            self.delt_time = 0
+            self.time = time
+        else:
+            self.delt_time = time - self.time
+        self.time = time
+        
+        (self.x, self.P) = self.ukf.filter_update(state, state_cov, anchor_dis)
         return (self.x, self.P)
 
-    def transition_function(self, state, noise):
-        return dot(self.A,state)
+    def transition_function(self, state):
+        u = tuple([[0,0,-g,0,0,0]])
+        return odeint(state_equation, state, [1, self.delt_time], u)[1]
 
-    def observation_function(self, state, noise):
+    def observation_function(self, state):
         return linalg.norm(state[0:3] - self.anchor_pos)
 
-if __name__ != '__main__':
+if __name__ == '__main__':
+    
+    #xk= [0,0,0,0,0,0,0.1,0.1,0.1,0]
+    #t = [0, 10]
+    #u = tuple([[0,0,-g,0,0,0]])
+    #print 'int:', odeint(state_equation,xk, t, u)[1]
+    
+    uwb = UWBLocation()
+    
+    xe = zeros(x.shape)
+    p  = zeros((N,x.shape[1],x.shape[1]))
+
+    time = []
+    for i in range(0, N-1):
+        start = timeit.timeit()
+
+        xe[i+1], p[i+1] = uwb.locate(xe[i], Q, 1.0*t/N*i, measure[i], anchor[i%4])
+       
+        end = timeit.timeit()
+        time.append(end-start)
+        #print end - start
+    
+    print max(time), min(time), mean(time)
+    #t = linspace(0, 10, N) 
+
+    fig = plt.figure()
+    ax = fig.add_subplot(121, projection='3d')
+    ax.plot(anchor[:,0],anchor[:,1],anchor[:,2],marker='o',linewidth=3)
+    ax.plot(xe[:,0], xe[:,1], xe[:,2])
+    ax.plot(x[:,0], x[:,1], x[:,2])
+
+    ax = fig.add_subplot(222)
+    ax.plot(abs(xe[:,0]-x[:,0]),color = 'red')
+    ax.plot(abs(xe[:,1]-x[:,1]),color = 'blue')
+    ax.plot(abs(xe[:,2]-x[:,2]),color = 'black')
+    
+    ax = fig.add_subplot(224)
+    ax.plot(abs(xe[:,3]),color = 'red')
+    ax.plot(abs(xe[:,4]),color = 'blue')
+    ax.plot(abs(xe[:,5]),color = 'black')
+
+    plt.show()
+    
+else:
 
     uwb = UWBLocation()
     

@@ -1,12 +1,68 @@
 #!/usr/bin/env python
 from matplotlib.lines import lineStyles
+from numpy.oldnumeric.linear_algebra import inverse
 __author__ = 'Jeffsan'
 from numpy import *
+from numpy import matlib
+from scipy.integrate import odeint
 from pykalman import KalmanFilter
 from pykalman import UnscentedKalmanFilter,AdditiveUnscentedKalmanFilter
 #import matplotlib as plt
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+
+g = 9.80665
+
+def state_equation(x, t0, u):
+    ''' Defined by Jeffsan Wang
+        The state equation, dx/dt = f(x,t0,u)
+        Computes the derivative of state at time t0 on the condition of input u.
+        x[0:3] --> Position in ned frame
+        x[3:6] --> Euler angle of body frame expressed in inertial frame
+        x[6:9] --> Velocity in aircraft body frame
+        x[9]   --> Bais in Yaw direction of body frame
+        
+        u[0:3] --> Accelaration in body frame
+        u[3:6] --> Angle rate of body frame expressed in inertial frame  
+        '''
+
+    
+    [pos, eul, vel, bias]    = [x[0:3], x[3:6], x[6:9], x[9]]
+    [ax, ay, az, wx, wy, wz] = [u[0], u[1], u[2], u[3], u[4], u[5]]        
+    [phi, theta, psi]        = [eul[0], eul[1], eul[2]]
+    [vx, vy, vz]             = [vel[0], vel[1], vel[2]]
+    
+    #positon transition
+    [cp, sp, ct, st, cs, ss] = [cos(phi), sin(phi), cos(theta), sin(theta), cos(psi), sin(psi)]   
+    T = array([[        ct*cs,          ct*ss,        -st ],
+               [sp*st*cs - cp*ss, sp*st*ss + cp*cs,  sp*ct],
+               [cp*st*cs + sp*ss, cp*st*ss - sp*cs,  cp*ct]])
+    dev_pos   = dot(inverse(T), vel)
+    
+    #euler angle transition
+    tt = tan(theta)
+    R = array([[1, sp * tt, cp * tt ],
+               [0,    cp,     -sp   ],
+               [0, sp / ct, cp / ct ]])
+    dev_euler = dot(R, [wx, wy, wz])
+    
+    #veloctiy transition
+    dev_vx = ax - g * st      - wy * vz + wz * vy
+    dev_vy = ay + g * ct * sp - wz * vx + wx * vz
+    dev_vz = az + g * ct * cp - wx * vy + wy * vx
+    dev_vel = [dev_vx, dev_vy, dev_vz]
+    
+    #yaw bias transition
+    dev_bias = 0
+    
+    #merge state transition
+    dev_x = hstack((dev_pos, dev_euler, dev_vel, dev_bias))
+    return dev_x
+    
+xk= [0,0,0,0,0,0,0.1,0.1,0.1,0]
+t = [0, 10]
+u = tuple([[0,0,-g,0,0,0]])
+print 'int:', odeint(state_equation,xk, t, u)
 
 class FastVisionLocation:
     def __init__(self):
@@ -30,7 +86,7 @@ class UWBLocation:
         
     def ukfinit(self):
 
-        self.ukf = UnscentedKalmanFilter(n_dim_obs = self.M, n_dim_state = self.N,
+        self.ukf = AdditiveUnscentedKalmanFilter(n_dim_obs = self.M, n_dim_state = self.N,
                                         transition_functions     = self.transition_function,
                                         observation_functions    = self.observation_function,
                                         transition_covariance    = self.Q,
@@ -43,10 +99,10 @@ class UWBLocation:
         (self.x, self.P) = self.ukf.filter_update(self.x, self.Q, anchor_dis)
         return (self.x, self.P)
 
-    def transition_function(self, state, noise):
+    def transition_function(self, state):
         return dot(self.A,state)
 
-    def observation_function(self, state, noise):
+    def observation_function(self, state):
         return linalg.norm(state[0:3] - self.anchor_pos)
 
 if __name__ == '__main__':

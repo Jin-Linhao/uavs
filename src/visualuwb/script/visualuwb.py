@@ -10,8 +10,8 @@ from pykalman import UnscentedKalmanFilter, AdditiveUnscentedKalmanFilter
 #import matplotlib as plt
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-import timeit
 
+import time
 
 
 g = 9.80665
@@ -139,17 +139,10 @@ if __name__ == '__main__':
     xe = zeros(x.shape)
     p  = zeros((N,x.shape[1],x.shape[1]))
 
-    time = []
     for i in range(0, N-1):
-        start = timeit.timeit()
-
         xe[i+1], p[i+1] = uwb.locate(xe[i], Q, 1.0*t/N*i, measure[i], anchor[i%4])
        
-        end = timeit.timeit()
-        time.append(end-start)
-        #print end - start
     
-    print max(time), min(time), mean(time)
     #t = linspace(0, 10, N) 
 
     fig = plt.figure()

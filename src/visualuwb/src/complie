@@ -1,0 +1,1 @@
+gcc rcm.c rcmIf.c ssuwb.c rcmSampleApp.c -o demo

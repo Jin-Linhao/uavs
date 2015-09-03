@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<launch>
+        <arg name="record_flag" value="1"/>
+
+	<node pkg="visualuwb" type="uwb_node" name="uwb_node" output="screen" args="/dev/ttyACM0 usb">
+		<param name="videoport" value="0" />
+		<param name="hz" value="10" />
+	</node>
+<!--
+	<node pkg="camera" type="video1" name="video1" output="screen">
+		<param name="videoport1" value="1" />
+		<param name="hz1" value="5" />
+	</node>
+-->
+<!--
+
+	<node pkg="camera" type="recorder" name="recorder" output="screen" if="$(arg record_flag)">
+             <param name="/database" value="$(find camera)/database/"/>
+	</node>
+-->
+</launch>

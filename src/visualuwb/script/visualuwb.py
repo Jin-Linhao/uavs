@@ -120,9 +120,11 @@ class UWBLocation:
         return (self.x, self.P)
 
     def transition_function(self, state):
+
         u = tuple([[0,0,-g,0,0,0]])
         return odeint(state_equation, state, [1, self.delt_time], u)[1]
 
+        #return dot(self.A,state)
 
     def observation_function(self, state):
         return linalg.norm(state[0:3] - self.anchor_pos)

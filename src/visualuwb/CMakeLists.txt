@@ -45,11 +45,10 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+   FILES
+   uwb.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -66,10 +65,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+generate_messages(
+   DEPENDENCIES
+   std_msgs
+)
 
 ###################################
 ## catkin specific configuration ##
@@ -82,9 +81,9 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES visualuwb
-#  CATKIN_DEPENDS roscpp rospy std_msgs tf2
-#  DEPENDS system_lib
+  LIBRARIES visualuwb
+  CATKIN_DEPENDS roscpp rospy std_msgs tf2
+  DEPENDS system_lib
 )
 
 ###########
@@ -97,6 +96,11 @@ catkin_package(
 include_directories(
   ${catkin_INCLUDE_DIRS}
 )
+SET(UWB_SRCS 
+    src/rcm.cpp
+	src/rcmIf.cpp
+    src/ssuwb.cpp
+)
 
 ## Declare a cpp library
 # add_library(visualuwb
@@ -104,7 +108,7 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-# add_executable(visualuwb_node src/visualuwb_node.cpp)
+add_executable(uwb_node src/uwb_node.cpp ${UWB_SRCS})
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes

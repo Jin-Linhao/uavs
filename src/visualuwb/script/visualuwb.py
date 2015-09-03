@@ -10,7 +10,6 @@ from pykalman import UnscentedKalmanFilter, AdditiveUnscentedKalmanFilter
 #import matplotlib as plt
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-
 import time
 
 
@@ -124,6 +123,7 @@ class UWBLocation:
         u = tuple([[0,0,-g,0,0,0]])
         return odeint(state_equation, state, [1, self.delt_time], u)[1]
 
+
     def observation_function(self, state):
         return linalg.norm(state[0:3] - self.anchor_pos)
 
@@ -139,9 +139,12 @@ if __name__ == '__main__':
     xe = zeros(x.shape)
     p  = zeros((N,x.shape[1],x.shape[1]))
 
+    start = time.time()
     for i in range(0, N-1):
         xe[i+1], p[i+1] = uwb.locate(xe[i], Q, 1.0*t/N*i, measure[i], anchor[i%4])
        
+    end = time.time()
+    print (end - start)/N
     
     #t = linspace(0, 10, N) 
 

@@ -25,6 +25,7 @@ private:
     rcmMsg_DataInfo dataInfo;
     rcmMsg_ScanInfo scanInfo;
     rcmMsg_FullScanInfo fullScanInfo;
+public:
     int uwb(int destNodeId);
 };
 

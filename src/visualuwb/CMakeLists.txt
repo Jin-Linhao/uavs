@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  geometry_msgs
   tf2
 )
 
@@ -67,6 +68,7 @@ add_message_files(
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
    DEPENDENCIES
+   geometry_msgs
    std_msgs
 )
 
@@ -82,7 +84,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
   LIBRARIES visualuwb
-  CATKIN_DEPENDS roscpp rospy std_msgs tf2
+  CATKIN_DEPENDS roscpp rospy std_msgs tf2 geometry_msgs
   DEPENDS system_lib
 )
 
@@ -112,12 +114,12 @@ add_executable(uwb_node src/uwb_node.cpp ${UWB_SRCS})
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(visualuwb_node visualuwb_generate_messages_cpp)
+ add_dependencies(uwb_node visualuwb_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(visualuwb_node
-#   ${catkin_LIBRARIES}
-# )
+ target_link_libraries(uwb_node
+   ${catkin_LIBRARIES}
+ )
 
 #############
 ## Install ##

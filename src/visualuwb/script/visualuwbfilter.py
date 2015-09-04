@@ -219,46 +219,48 @@ if __name__ == '__main__':
         ax.plot(abs(xe[:,8]-x[:,8]),color = 'black')
         plt.show()
 
-else:
-
-    uwb = UWBLocation()
-    
-    N = 100
-
-    x = array([[i, i, i*0.4, 4.0/N, 4.0/N, 0.4*4.0/N] for i in linspace(0,4,N)])
-    
-    anchor = array([[-0.1,-0.1,0.8],[4,0,1.3],[4,4,0.2],[0,4,1.2]])
-    
-    y = array([[linalg.norm(x[i,0:3]-anchor[i%4])] for i in xrange(0,N)])
-
-    measure = y + random.randn(N,1)*0.1
-
-    xe = zeros(x.shape)
-    p  = zeros((N,x.shape[1],x.shape[1]))
-
-    for i in xrange(0, N-1):
-        xe[i+1], p[i+1] = uwb.locate(measure[i], anchor[i%4])
-
-    t = linspace(0, 10, N) 
-
-    fig = plt.figure()
-    ax = fig.add_subplot(121, projection='3d')
-    ax.plot(anchor[:,0],anchor[:,1],anchor[:,2],marker='o',linewidth=3)
-    ax.plot(xe[:,0], xe[:,1], xe[:,2])
-    ax.plot(x[:,0], x[:,1], x[:,2])
-
-    ax = fig.add_subplot(222)
-    ax.plot(abs(xe[:,0]-x[:,0]),color = 'red')
-    ax.plot(abs(xe[:,1]-x[:,1]),color = 'blue')
-    ax.plot(abs(xe[:,2]-x[:,2]),color = 'black')
-   
-    
-    ax = fig.add_subplot(224)
-    ax.plot(abs(xe[:,3]),color = 'red')
-    ax.plot(abs(xe[:,4]),color = 'blue')
-    ax.plot(abs(xe[:,5]),color = 'black')
-
-    plt.show()
+#===============================================================================
+# #else:
+# 
+#     uwb = UWBLocation()
+#     
+#     N = 100
+# 
+#     x = array([[i, i, i*0.4, 4.0/N, 4.0/N, 0.4*4.0/N] for i in linspace(0,4,N)])
+#     
+#     anchor = array([[-0.1,-0.1,0.8],[4,0,1.3],[4,4,0.2],[0,4,1.2]])
+#     
+#     y = array([[linalg.norm(x[i,0:3]-anchor[i%4])] for i in xrange(0,N)])
+# 
+#     measure = y + random.randn(N,1)*0.1
+# 
+#     xe = zeros(x.shape)
+#     p  = zeros((N,x.shape[1],x.shape[1]))
+# 
+#     for i in xrange(0, N-1):
+#         xe[i+1], p[i+1] = uwb.locate(measure[i], anchor[i%4])
+# 
+#     t = linspace(0, 10, N) 
+# 
+#     fig = plt.figure()
+#     ax = fig.add_subplot(121, projection='3d')
+#     ax.plot(anchor[:,0],anchor[:,1],anchor[:,2],marker='o',linewidth=3)
+#     ax.plot(xe[:,0], xe[:,1], xe[:,2])
+#     ax.plot(x[:,0], x[:,1], x[:,2])
+# 
+#     ax = fig.add_subplot(222)
+#     ax.plot(abs(xe[:,0]-x[:,0]),color = 'red')
+#     ax.plot(abs(xe[:,1]-x[:,1]),color = 'blue')
+#     ax.plot(abs(xe[:,2]-x[:,2]),color = 'black')
+#    
+#     
+#     ax = fig.add_subplot(224)
+#     ax.plot(abs(xe[:,3]),color = 'red')
+#     ax.plot(abs(xe[:,4]),color = 'blue')
+#     ax.plot(abs(xe[:,5]),color = 'black')
+# 
+#     plt.show()
+#===============================================================================
 
 
     # vkf = KalmanFilter(n_dim_obs = 2, n_dim_state = 2,

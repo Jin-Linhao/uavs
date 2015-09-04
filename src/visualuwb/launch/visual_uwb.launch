@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <launch>
-
-
+<!--
+    <node pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="0 0 0 0 3.1415926 (143-90)/180*3.1415926 vicon ned 30" />
+    <node pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="0 0 0 0 0 0 1 vicon uwb 30" />
+-->
     <node name="broadcaster" pkg="visualuwb" type="frame.py" respawn="false" output="screen" >
     </node>
 

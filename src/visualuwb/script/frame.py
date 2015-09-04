@@ -33,6 +33,8 @@ if __name__ == '__main__':
     uwb_quar = quaternion_from_euler(0,0,deg2rad(143))
 
     rate = rospy.Rate(30.0)
+    
+    rospy.Subscriber("chatter", String, callback)
 
     
     while not rospy.is_shutdown():

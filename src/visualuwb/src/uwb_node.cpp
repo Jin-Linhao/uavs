@@ -10,13 +10,13 @@ int main(int argc, char *argv[])
 {
     //int dis;
     int nodes[4];
-    nodes[0]=303;
-    nodes[1]=303;
-    nodes[2]=303;
-    nodes[3]=303;
-    double x[4]={1,2,3,4};
-    double y[4]={1,2,3,4};
-    double z[4]={1,2,3,4};
+    nodes[0]=101;
+    nodes[1]=102;
+    nodes[2]=105;
+    nodes[3]=106;
+    double x[4]={-3.0, 3.0, 3.0,-3.0};
+    double y[4]={-3.0,-3.0, 3.0, 3.0};
+    double z[4]={-1.78,-1.17,-1.31,-1.31};
 
     ros::init(argc, argv, "uwb");
     ros::NodeHandle n;
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     {
         for (int i=0; i<4; i++)
         {
-            msg.dis ==uwb.uwb(nodes[i]);
+            msg.dis =uwb.uwb(nodes[i]);
             msg.header.stamp = ros::Time::now();
             msg.anchor.x = x[i];
             msg.anchor.y = y[i];

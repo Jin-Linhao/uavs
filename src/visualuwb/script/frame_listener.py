@@ -11,15 +11,15 @@ import tf2_ros as tf2
 import geometry_msgs.msg
 import turtlesim.msg
 import rospy
-import tf2_ros
 import geometry_msgs.msg
 import math
 
 if __name__ == '__main__':
     rospy.init_node('require_tf')
 
-    tfBuffer = tf2_ros.Buffer()
-    listener = tf2_ros.TransformListener(tfBuffer)
+    tfBuffer = tf.Buffer()
+    listener = tf.TransformListener(tfBuffer)
+    listener.transformPoint()#(target_frame_, *point_ptr, point_out);
 
     rate = rospy.Rate(10.0)
     while not rospy.is_shutdown():
@@ -27,7 +27,7 @@ if __name__ == '__main__':
             ned_cam_tf = tfBuffer.lookup_transform('ned', 'cam', rospy.Time.now(),rospy.Duration(0.5))
             #print ned_cam_tf.transform.quaternion_from_euler()
             print ned_cam_tf
-        except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+        except (tf2.LookupException, tf2.ConnectivityException, tf2.ExtrapolationException):
             rate.sleep()
             continue
 

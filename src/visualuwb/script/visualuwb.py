@@ -28,7 +28,7 @@ Q[9,9]      =  0.0000001
     
 anchor = array([[-0.1,-0.1,0.8],[4,0,1.3],[4,4,0.2],[0,4,1.2]])
     
-y = array([[linalg.norm(x[i,0:3]-anchor[i%4])] for i in range(0,N)])
+y = array([[linalg.norm(x[i,0:3]-anchor[i%4])] for i in xrange(0,N)])
 
 noise = random.randn(N,1)*0.1
 measure = y + noise
@@ -87,6 +87,39 @@ class FastVisionLocation:
         kf = KalmanFilter(n_dim_obs = self.M, n_dim_state = self.N,
                           transition_matrices=self.A, observation_matrices=self.C)
 
+class IMULocation:
+    def __init__(self):
+        self.N = 10
+        self.M = 1
+        self.x = zeros((1,self.N))[0]
+        self.R = eye(1)*0.1
+        self.P = Q
+        self.time = -1
+        self.ukfinit()
+        
+    def ukfinit(self):
+
+        self.ukf = AdditiveUnscentedKalmanFilter(n_dim_obs = self.M, n_dim_state = self.N,
+                                        transition_functions     = self.transition_function,
+                                        observation_functions    = self.observation_function,
+                                        transition_covariance    = Q,
+                                        observation_covariance   = self.R,
+                                        initial_state_mean       = self.x,
+                                        initial_state_covariance = Q)
+
+    def locate(self, state, state_cov, delt_time, euler_angle, linear_acc, angular_rate):
+        self.delt_time = delt_time
+        self.u = vstack((linear_acc, angular_rate))
+        (self.x, self.P) = self.ukf.filter_update(state, state_cov, euler_angle)
+        return (self.x, self.P)
+
+    def transition_function(self, state):
+        return odeint(state_equation, state, [1, self.delt_time], self.u)[1]
+
+    def observation_function(self, state):
+        return vstack((state[3:5],state[5]+state[9]))
+
+
 class UWBLocation:
     def __init__(self):
         self.N = 10
@@ -107,69 +140,85 @@ class UWBLocation:
                                         initial_state_mean       = self.x,
                                         initial_state_covariance = Q)
 
-    def locate(self, state, state_cov, time, anchor_dis, anchor_pos):
+    def locate(self, state, state_cov, delt_time, anchor_dis, anchor_pos):
         self.anchor_pos = anchor_pos
-        if self.time == -1:
-            self.delt_time = 0
-            self.time = time
-        else:
-            self.delt_time = time - self.time
-        self.time = time
-        
+        self.delt_time = delt_time    
         (self.x, self.P) = self.ukf.filter_update(state, state_cov, anchor_dis)
         return (self.x, self.P)
 
     def transition_function(self, state):
-
         u = tuple([[0,0,-g,0,0,0]])
         return odeint(state_equation, state, [1, self.delt_time], u)[1]
-
-        #return dot(self.A,state)
 
     def observation_function(self, state):
         return linalg.norm(state[0:3] - self.anchor_pos)
 
 if __name__ == '__main__':
     
-    #xk= [0,0,0,0,0,0,0.1,0.1,0.1,0]
-    #t = [0, 10]
-    #u = tuple([[0,0,-g,0,0,0]])
-    #print 'int:', odeint(state_equation,xk, t, u)[1]
+    test_module='uwb'
     
-    uwb = UWBLocation()
+    if test_module=='imu':
+        imu = IMULocation()   
+        xe = zeros(x.shape)
+        p  = zeros((N,x.shape[1],x.shape[1]))
     
-    xe = zeros(x.shape)
-    p  = zeros((N,x.shape[1],x.shape[1]))
+        start = time.time()
+        for i in xrange(0, N-1):
+            xe[i+1], p[i+1] = imu.locate(xe[i], Q, 1.0*t/N, measure[i], anchor[i%4])
+           
+        end = time.time()
+        print (end - start)/N
+    
+        fig = plt.figure()
+        ax = fig.add_subplot(121, projection='3d')
+        ax.plot(anchor[:,0],anchor[:,1],anchor[:,2],marker='o',linewidth=3)
+        ax.plot(xe[:,0], xe[:,1], xe[:,2])
+        ax.plot(x[:,0], x[:,1], x[:,2])
+    
+        ax = fig.add_subplot(222)
+        ax.plot(abs(noise), color = 'black',linewidth=2.5)
+        ax.plot(abs(xe[:,0]-x[:,0]),color = 'red')
+        ax.plot(abs(xe[:,1]-x[:,1]),color = 'blue')
+        ax.plot(abs(xe[:,2]-x[:,2]),color = 'black')
+        
+        
+        ax = fig.add_subplot(224)
+        ax.plot(abs(xe[:,6]-x[:,6]),color = 'red')
+        ax.plot(abs(xe[:,7]-x[:,7]),color = 'blue')
+        ax.plot(abs(xe[:,8]-x[:,8]),color = 'black') 
+        plt.show()
 
-    start = time.time()
-    for i in range(0, N-1):
-        xe[i+1], p[i+1] = uwb.locate(xe[i], Q, 1.0*t/N*i, measure[i], anchor[i%4])
-       
-    end = time.time()
-    print (end - start)/N
+    elif test_module=='uwb':
+        uwb = UWBLocation()   
+        xe = zeros(x.shape)
+        p  = zeros((N,x.shape[1],x.shape[1]))
     
-    #t = linspace(0, 10, N) 
+        start = time.time()
+        for i in xrange(0, N-1):
+            xe[i+1], p[i+1] = uwb.locate(xe[i], Q, 1.0*t/N, measure[i], anchor[i%4])
+           
+        end = time.time()
+        print (end - start)/N
+    
+        fig = plt.figure()
+        ax = fig.add_subplot(121, projection='3d')
+        ax.plot(anchor[:,0],anchor[:,1],anchor[:,2],marker='o',linewidth=3)
+        ax.plot(xe[:,0], xe[:,1], xe[:,2])
+        ax.plot(x[:,0], x[:,1], x[:,2])
+    
+        ax = fig.add_subplot(222)
+        ax.plot(abs(noise), color = 'black',linewidth=2.5)
+        ax.plot(abs(xe[:,0]-x[:,0]),color = 'red')
+        ax.plot(abs(xe[:,1]-x[:,1]),color = 'blue')
+        ax.plot(abs(xe[:,2]-x[:,2]),color = 'black')
+        
+        
+        ax = fig.add_subplot(224)
+        ax.plot(abs(xe[:,6]-x[:,6]),color = 'red')
+        ax.plot(abs(xe[:,7]-x[:,7]),color = 'blue')
+        ax.plot(abs(xe[:,8]-x[:,8]),color = 'black')
+        plt.show()
 
-    fig = plt.figure()
-    ax = fig.add_subplot(121, projection='3d')
-    ax.plot(anchor[:,0],anchor[:,1],anchor[:,2],marker='o',linewidth=3)
-    ax.plot(xe[:,0], xe[:,1], xe[:,2])
-    ax.plot(x[:,0], x[:,1], x[:,2])
-
-    ax = fig.add_subplot(222)
-    ax.plot(abs(noise), color = 'black',linewidth=2.5)
-    ax.plot(abs(xe[:,0]-x[:,0]),color = 'red')
-    ax.plot(abs(xe[:,1]-x[:,1]),color = 'blue')
-    ax.plot(abs(xe[:,2]-x[:,2]),color = 'black')
-    
-    
-    ax = fig.add_subplot(224)
-    ax.plot(abs(xe[:,6]-x[:,6]),color = 'red')
-    ax.plot(abs(xe[:,7]-x[:,7]),color = 'blue')
-    ax.plot(abs(xe[:,8]-x[:,8]),color = 'black')
-
-    plt.show()
-    
 else:
 
     uwb = UWBLocation()
@@ -180,14 +229,14 @@ else:
     
     anchor = array([[-0.1,-0.1,0.8],[4,0,1.3],[4,4,0.2],[0,4,1.2]])
     
-    y = array([[linalg.norm(x[i,0:3]-anchor[i%4])] for i in range(0,N)])
+    y = array([[linalg.norm(x[i,0:3]-anchor[i%4])] for i in xrange(0,N)])
 
     measure = y + random.randn(N,1)*0.1
 
     xe = zeros(x.shape)
     p  = zeros((N,x.shape[1],x.shape[1]))
 
-    for i in range(0, N-1):
+    for i in xrange(0, N-1):
         xe[i+1], p[i+1] = uwb.locate(measure[i], anchor[i%4])
 
     t = linspace(0, 10, N) 

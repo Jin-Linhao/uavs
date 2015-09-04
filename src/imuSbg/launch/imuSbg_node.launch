@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+
+ <!-- imuSbg node -->
+  <node respawn="true" pkg="imuSbg"
+        type="imuSbg_node" name="imuSbg_node0" >
+    <param name="imuSbgSerialPort" type="string" value="/dev/ttyUSB0" />
+	<param name="imuSbgNodeRate" type="string" value="25"/>
+  </node>
+  
+</launch>
+

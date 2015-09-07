@@ -1,3 +1,7 @@
+sudo apt-get install python-numpy python-scipy python-matplotlib ipython ipython-notebook python-pandas python-sympy python-nose
+
+sudo apt-get install python-numpy python-scipy python-matplotlib mayavi2 ipython python-setuptools python-simpy python-pyparsing
+
 #  Mono-SLAM for Internet of Things Lab
 
 

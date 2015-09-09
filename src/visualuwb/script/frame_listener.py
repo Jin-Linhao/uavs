@@ -23,7 +23,7 @@ if __name__ == '__main__':
             (trans,rot) = listener.lookupTransform('ned', 'uwb', rospy.Time(0))
             p.header.stamp = rospy.Time(0)
             up = listener.transformPoint('ned', p)
-            print up
+            #print up
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             continue
 

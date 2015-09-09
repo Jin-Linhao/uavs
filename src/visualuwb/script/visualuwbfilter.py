@@ -1,163 +1,166 @@
 #!/usr/bin/env python
-from matplotlib.lines import lineStyles
-from numpy.oldnumeric.linear_algebra import inverse
 __author__ = 'Jeffsan'
-from numpy import *
-from numpy import matlib
-from scipy.integrate import odeint
-from pykalman import KalmanFilter
 from pykalman import UnscentedKalmanFilter, AdditiveUnscentedKalmanFilter
-#import matplotlib as plt
-import matplotlib.pyplot as plt
+from numpy.oldnumeric.linear_algebra import inverse
+from matplotlib.lines import lineStyles
 from mpl_toolkits.mplot3d import Axes3D
+from scipy.integrate import odeint
+from tf.transformations import euler_from_quaternion
+from tf.transformations import quaternion_from_euler
+from pykalman import KalmanFilter
+import matplotlib.pyplot as plt
+from filter import *
+from numpy import *
 import time
-
-
-g = 9.80665
+import copy
+icount = 0
+anchor = array([[-2,-2,0.8],[-2,2,1.2],[2,2,1.3],[2,-2,0.2]])
 N = 100
-t = 5
-
-x = array([[i, i, i*0.4, 0, 0, 0, 4.0/N, 4.0/N, 0.4*4.0/N, 0] for i in linspace(0,4,N)])
-    
-Q  = zeros((x.shape[1],x.shape[1]))
-Q[0:3, 0:3] =  0.01*eye(3)
-Q[3:6, 3:6] =  0.000001*eye(3)
-Q[6:8, 6:8] =  0.0064*eye(2)
-Q[8,8]      =  0.0064
-Q[9,9]      =  0.0000001
-    
-anchor = array([[-0.1,-0.1,0.8],[4,0,1.3],[4,4,0.2],[0,4,1.2]])
-    
+x = array([[i, i, i*0.4, 0, 0, 0, 4.0/N, 4.0/N, 0.4*4.0/N, 0] for i in linspace(0,4,N)])   
 y = array([[linalg.norm(x[i,0:3]-anchor[i%4])] for i in xrange(0,N)])
-
 noise = random.randn(N,1)*0.1
 measure = y + noise
+state_estimation = zeros((1,10))[0]
+state_estimation[2]=0.27
+curent_u = tuple([[0,0,-g,0,0,0]])
+uwb = UWBLocation() 
+imu = IMULocation() 
 
 
-def state_equation(x, t0, u):
-    ''' Defined by Jeffsan Wang
-        The state equation, dx/dt = f(x,t0,u)
-        Computes the derivative of state at time t0 on the condition of input u.
-        x[0:3] --> Position in ned frame
-        x[3:6] --> Euler angle of body frame expressed in inertial frame
-        x[6:9] --> Velocity in aircraft body frame
-        x[9]   --> Bais in Yaw direction of body frame
-        
-        u[0:3] --> Accelaration in body frame
-        u[3:6] --> Angle rate of body frame expressed in inertial frame  '''
+def statecallback(msg):
+    global icount
+    global state_estimation
+   
+    pos        = array([msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.position.z])
+    anchor_pos = anchor[icount%4]
+    icount     = icount+1
+    y          = linalg.norm(pos - anchor_pos)#+ random.randn(1,1)[0]*0.1
+    q          = msg.pose.pose.orientation
+    vels       = msg.twist.twist.linear
+    vel        = array([vels.x, vels.y, vels.z])
+    #state_estimation[6:9] = vel
+    #state_estimation[3:6] = euler_from_quaternion((q.x,q.y,q.z,q.w))
 
-    [pos, eul, vel, bias]    = [x[0:3], x[3:6], x[6:9], x[9]]
-    [ax, ay, az, wx, wy, wz] = [u[0], u[1], u[2], u[3], u[4], u[5]]        
-    [phi, theta, psi]        = [eul[0], eul[1], eul[2]]
-    [vx, vy, vz]             = [vel[0], vel[1], vel[2]]
+    (state_estimation, p)=uwb.locate(state_estimation, Q, 1.0/(100), y, anchor_pos)
     
-    #positon transition
-    [cp, sp, ct, st, cs, ss] = [cos(phi), sin(phi), cos(theta), sin(theta), cos(psi), sin(psi)]   
-    T = array([[        ct*cs,          ct*ss,        -st ],
-               [sp*st*cs - cp*ss, sp*st*ss + cp*cs,  sp*ct],
-               [cp*st*cs + sp*ss, cp*st*ss - sp*cs,  cp*ct]])
-    dev_pos   = dot(inverse(T), vel)
-    
-    #euler angle transition
-    tt = tan(theta)
-    R = array([[1, sp * tt, cp * tt ],
-               [0,    cp,     -sp   ],
-               [0, sp / ct, cp / ct ]])
-    dev_euler = dot(R, [wx, wy, wz])
-    
-    #veloctiy transition
-    dev_vx = ax - g * st      - wy * vz + wz * vy
-    dev_vy = ay + g * ct * sp - wz * vx + wx * vz
-    dev_vz = az + g * ct * cp - wx * vy + wy * vx
-    dev_vel = [dev_vx, dev_vy, dev_vz]
-    
-    #yaw bias transition
-    dev_bias = 0
-    
-    #merge state transition
-    dev_x = hstack((dev_pos, dev_euler, dev_vel, dev_bias))
-    return dev_x
-    
-class FastVisionLocation:
-    def __init__(self):
-        self.M = 2
-        self.N = 3
-        self.A = [[1, 0, 0], [0, 1, 0],[0, 0, 1]]
-        self.C = [[1, 0, 0], [0, 1, 0]]
-        kf = KalmanFilter(n_dim_obs = self.M, n_dim_state = self.N,
-                          transition_matrices=self.A, observation_matrices=self.C)
-
-class IMULocation:
-    def __init__(self):
-        self.N = 10
-        self.M = 1
-        self.x = zeros((1,self.N))[0]
-        self.R = eye(1)*0.1
-        self.P = Q
-        self.time = -1
-        self.ukfinit()
-        
-    def ukfinit(self):
-
-        self.ukf = AdditiveUnscentedKalmanFilter(n_dim_obs = self.M, n_dim_state = self.N,
-                                        transition_functions     = self.transition_function,
-                                        observation_functions    = self.observation_function,
-                                        transition_covariance    = Q,
-                                        observation_covariance   = self.R,
-                                        initial_state_mean       = self.x,
-                                        initial_state_covariance = Q)
-
-    def locate(self, state, state_cov, delt_time, euler_angle, linear_acc, angular_rate):
-        self.delt_time = delt_time
-        self.u = vstack((linear_acc, angular_rate))
-        (self.x, self.P) = self.ukf.filter_update(state, state_cov, euler_angle)
-        return (self.x, self.P)
-
-    def transition_function(self, state):
-        return odeint(state_equation, state, [1, self.delt_time], self.u)[1]
-
-    def observation_function(self, state):
-        return vstack((state[3:5],state[5]+state[9]))
+    br  = tf.TransformBroadcaster()
+    uwb_tran = state_estimation[0:3]
+    uwb_q = [msg.pose.pose.orientation.x,msg.pose.pose.orientation.y,msg.pose.pose.orientation.z,msg.pose.pose.orientation.w] 
+    br.sendTransform(uwb_tran,uwb_q, rospy.Time.now(), "uwb","world")  
+    print state_estimation[0:3],pos
 
 
-class UWBLocation:
-    def __init__(self):
-        self.N = 10
-        self.M = 1
-        self.x = zeros((1,self.N))[0]
-        self.R = eye(1)*0.1
-        self.P = Q
-        self.time = -1
-        self.ukfinit()
-        
-    def ukfinit(self):
+def imucallback(msg):
+    global state_estimation
+    q     = (msg.orientation.x,msg.orientation.y,msg.orientation.z,msg.orientation.w)
+    euler = array(euler_from_quaternion(q))
+    rate  = array([msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.x])
+    acc   = array([msg.linear_acceleration.x,msg.linear_acceleration.y, msg.linear_acceleration.z])
+    #(state_estimation, p)=imu.locate(state_estimation, Q, 1.0/(100/1), euler, acc, rate)
+    #br = tf.TransformBroadcaster()
+    #br.sendTransform(uwb_tran,(0,0,0,1), rospy.Time.now(), "uwb","world")  
 
-        self.ukf = AdditiveUnscentedKalmanFilter(n_dim_obs = self.M, n_dim_state = self.N,
-                                        transition_functions     = self.transition_function,
-                                        observation_functions    = self.observation_function,
-                                        transition_covariance    = Q,
-                                        observation_covariance   = self.R,
-                                        initial_state_mean       = self.x,
-                                        initial_state_covariance = Q)
 
-    def locate(self, state, state_cov, delt_time, anchor_dis, anchor_pos):
-        self.anchor_pos = anchor_pos
-        self.delt_time = delt_time    
-        (self.x, self.P) = self.ukf.filter_update(state, state_cov, anchor_dis)
-        return (self.x, self.P)
-
-    def transition_function(self, state):
-        u = tuple([[0,0,-g,0,0,0]])
-        return odeint(state_equation, state, [1, self.delt_time], u)[1]
-
-    def observation_function(self, state):
-        return linalg.norm(state[0:3] - self.anchor_pos)
 
 if __name__ == '__main__':
     
-    test_module='uwb'
+    test_module='bagtext'
+    if test_module == 'bagtext':
+        f = open('ground_truth.txt','r')
+        l = array([ map(float,line.split(' ')) for line in f if line.strip() != "" ])      
+        N = 800#l.shape[0]/8
+
+        p, qr, v, a, r, q  = l[0:N,2:5], l[0:N,5:9], l[0:N,9:12], l[0:N,19:22], l[0:N,22:25],l[0:N,15:19]
+        #a[:,0],a[:,1],a[:,2]= -a[:,0],-a[:,1],-a[:,2]
+        e = array([euler_from_quaternion(q[i]) for i in xrange(0,N)])
+        #for i in xrange(1,N):
+        #    print linalg.norm(qr[i]-q[i])
+        #exit(0)
+
+
+        #x = array([[i, i, i*0.4, 0, 0, 0, 4.0/N, 4.0/N, 0.4*4.0/N, 0] for i in linspace(0,4,N)])   
+        y = array([[linalg.norm(p[i]-anchor[i%4])] for i in xrange(0,N)])
+        n = random.randn(N,1)*0.1
+        measure = y #+ n
+        
+        xe = zeros((N,10))
+        xe[0,2] = 0.27
+        uwb = UWBLocation()
+        for i in xrange(0, N-1):
+            xe[i+1], pp = uwb.locate(xe[i], Q, 1.0/100, measure[i,0], anchor[i%4], e[i], a[i], r[i])
+            print i
+
+
+
+
+
+
+
+
+        #plot data
+        fig = plt.figure()
+        ax = fig.add_subplot(331, projection='3d')
+        ax.plot(anchor[:,0],anchor[:,1],anchor[:,2],marker='o',linewidth=3)
+        ax.plot(xe[:,0], xe[:,1], xe[:,2])
+        ax.plot(p[:,0], p[:,1], p[:,2])
+
+        ax = fig.add_subplot(333)
+        ax.plot(abs(xe[:,0]-p[:,0]),color = 'red')
+        ax.plot(abs(xe[:,1]-p[:,1]),color = 'blue')
+        ax.plot(abs(xe[:,2]-p[:,2]),color = 'black')
+        plt.title('error of position')
+
+        ax = fig.add_subplot(332)
+        ax.plot(v[:,0],color = 'red')
+        ax.plot(v[:,1],color = 'blue')
+        ax.plot(v[:,2],color = 'black') 
+        plt.title('real vel')
+
+        ax = fig.add_subplot(6,1,3)
+        ax.plot(a[:,0],color = 'red')
+        ax.plot(a[:,1],color = 'blue')
+        ax.plot(a[:,2],color = 'black') 
+        plt.title('real acc')
+
+        ax = fig.add_subplot(6,1,4)
+        ax.plot(r[:,0],color = 'red')
+        ax.plot(r[:,1],color = 'blue')
+        ax.plot(r[:,2],color = 'black') 
+        plt.title('real rate')
+
+        ax = fig.add_subplot(6,1,5)
+        ax.plot(xe[:,6],color = 'red')
+        ax.plot(xe[:,7],color = 'blue')
+        ax.plot(xe[:,8],color = 'black') 
+        plt.title('estimated euler')
+
+        ax = fig.add_subplot(6,1,6)
+        ax.plot(e[:,0],color = 'red')
+        ax.plot(e[:,1],color = 'blue')
+        ax.plot(e[:,2],color = 'black') 
+        plt.title('real euler')
+
+
+        plt.show()
+
+
+
+
+    if test_module == 'rviz':
+        import rospy
+        import tf
+        from nav_msgs.msg import Odometry
+        from sensor_msgs.msg import Imu
+        from tf.transformations import euler_from_quaternion
+        from tf.transformations import quaternion_from_euler
+        rospy.init_node('uav_filter')
+        rate = rospy.Rate(30.0)
+        rospy.Subscriber("/ground_truth/state", Odometry, statecallback)
+        rospy.Subscriber("/raw_imu", Imu, imucallback)
+        rospy.spin()
+        
     
-    if test_module=='imu':
+    elif test_module=='imu':
         imu = IMULocation()   
         xe = zeros(x.shape)
         p  = zeros((N,x.shape[1],x.shape[1]))
@@ -186,7 +189,7 @@ if __name__ == '__main__':
         ax.plot(abs(xe[:,6]-x[:,6]),color = 'red')
         ax.plot(abs(xe[:,7]-x[:,7]),color = 'blue')
         ax.plot(abs(xe[:,8]-x[:,8]),color = 'black') 
-        plt.show()
+
 
     elif test_module=='uwb':
         uwb = UWBLocation()   

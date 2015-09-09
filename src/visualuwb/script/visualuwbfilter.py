@@ -12,18 +12,18 @@ def statecallback(msg):
     global icount
     global xe
    
-    pos        = array([msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.position.z])
+    pos        = array([msg.pose.position.x, msg.pose.position.y, msg.pose.position.z])
     
     anchor_pos = anchor[icount%4]
     icount     = icount+1
     y          = linalg.norm(pos - anchor_pos)+ random.randn(1,1)[0]*0.1
-
+    #start = time.time()
     (xe, p) = uwb.locate(xe, Q, 1.0/(100), y, anchor_pos,q, a, r)
-    
+    #print "time:", time.time()-start
     br  = tf.TransformBroadcaster()
     uwb_tran = xe[0:3]
     uwb_q    = xe[3:7]
-    br.sendTransform(pos, q, msg.header.stamp, "uwb", "world")  
+    br.sendTransform(uwb_tran, uwb_q, msg.header.stamp, "uwb", "world")  
     #print state_estimation[0:3],pos
 
 
@@ -49,8 +49,9 @@ if __name__ == '__main__':
     xe[6] = 1
     q = array([0,0,0,1])
     a = array([0,0,0])
-    rospy.Subscriber("/ground_truth/state", Odometry, statecallback, queue_size = 1, buff_size= 1 )
-    rospy.Subscriber("/raw_imu", Imu, imucallback, queue_size = 1, buff_size= 1)
+    r = array([0,0,0])
+    rospy.Subscriber("/ground_truth_to_tf/pose", PoseStamped, statecallback, queue_size = 1, buff_size= 1,tcp_nodelay=True )
+    rospy.Subscriber("/raw_imu", Imu, imucallback, queue_size = 1, buff_size= 1,tcp_nodelay=True)
     rospy.spin()
         
  

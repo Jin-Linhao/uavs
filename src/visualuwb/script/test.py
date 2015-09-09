@@ -5,12 +5,10 @@ from VU_filter import *
 
 if __name__ == '__main__':
     
-
-    anchor = array([[-2,-2,0.2],[-2,2,1.2],[2,2,1.3],[2,-2,1.8]])
-    
     f = open('ground_truth.txt','r')
-    l = array([ map(float,line.split(' ')) for line in f if line.strip() != "" ])      
-    N = 2000
+    l = array([ map(float,line.split(' ')) for line in f if line.strip() != "" ])
+    #l = l[0:-1:2,:]
+    N = 1000
     p, qr, v, a, r, q  = l[0:N,2:5], l[0:N,5:9], l[0:N,9:12], l[0:N,19:22], l[0:N,22:25],l[0:N,15:19]
     #a[:,0],a[:,1]= -a[:,0], -a[:,1]
     

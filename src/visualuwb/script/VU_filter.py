@@ -19,6 +19,7 @@ Q[7:9, 7:9] =  0.5*eye(2)
 Q[9,9] =  4
 Q[10,10]      =  0.00000000001
 
+anchor = array([[-2,-2,0.2],[-2,2,1.2],[2,2,1.3],[2,-2,1.8]])
 
 
 def state_equation(x, t0, u):
@@ -78,36 +79,19 @@ class UWBLocation:
     def observation_function(self, state):
         return hstack((linalg.norm(state[0:3] - self.anchor_pos), state[3:7]))
 
-
-
-
-
-
-
-
-
-class FastVisionLocation:
-    def __init__(self):
-        self.M = 2
-        self.N = 3
-        self.A = [[1, 0, 0], [0, 1, 0],[0, 0, 1]]
-        self.C = [[1, 0, 0], [0, 1, 0]]
-        kf = KalmanFilter(n_dim_obs = self.M, n_dim_state = self.N,
-                          transition_matrices=self.A, observation_matrices=self.C)
-
 class IMULocation:
     def __init__(self):
-        self.N = 10
-        self.M = 3
+        self.N = 11
+        self.M = 5
         self.x = zeros((1,self.N))[0]
-        self.R = eye(3)*0.02
-        self.P = Q
-        self.time = -1
+        self.R = zeros((5,5))
+        self.R[0,0] = 0.1
+        self.R[1:5,1:5] = eye(4)*0.0001
         self.ukfinit()
         self.state_equation = copy.deepcopy(state_equation)
-        
+        self.u = tuple([[0,0,-g,0,0,0]])
+              
     def ukfinit(self):
-
         self.ukf = AdditiveUnscentedKalmanFilter(n_dim_obs = self.M, n_dim_state = self.N,
                                         transition_functions     = self.transition_function,
                                         observation_functions    = self.observation_function,
@@ -116,15 +100,15 @@ class IMULocation:
                                         initial_state_mean       = self.x,
                                         initial_state_covariance = Q)
 
-    def locate(self, state, state_cov, delt_time, euler_angle, linear_acc, angular_rate):
-        self.delt_time = delt_time
-        self.u = tuple((hstack((linear_acc, angular_rate))))
-        (self.x, self.P) = self.ukf.filter_update(state, state_cov, euler_angle)
-        print linalg.norm(euler_angle-self.x[3:6])
+    def locate(self, state, state_cov, delt_time, anchor_dis, anchor_pos, quaternion, linear_acc, angular_rate):
+        self.anchor_pos = anchor_pos
+        self.delt_time  = delt_time 
+        self.u = tuple([hstack((linear_acc, angular_rate))])
+        (self.x, self.P) = self.ukf.filter_update(state, state_cov, hstack((anchor_dis, quaternion)))
         return (self.x, self.P)
 
     def transition_function(self, state):
-        return odeint(self.state_equation, state, [0, self.delt_time], tuple([self.u]))[1]
+        return odeint(self.state_equation, state, [0, self.delt_time], self.u)[1]
 
     def observation_function(self, state):
-        return hstack((state[3:6]))
+        return hstack((linalg.norm(state[0:3] - self.anchor_pos), state[3:7]))

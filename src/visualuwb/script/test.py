@@ -10,13 +10,13 @@ if __name__ == '__main__':
     
     f = open('ground_truth.txt','r')
     l = array([ map(float,line.split(' ')) for line in f if line.strip() != "" ])      
-    N = 800
-    p, qr, v, a, r, q  = l[0:N,2:5], l[0:N,5:9], l[0:N,9:12], -l[0:N,19:22], l[0:N,22:25],l[0:N,15:19]
+    N = 2000
+    p, qr, v, a, r, q  = l[0:N,2:5], l[0:N,5:9], l[0:N,9:12], l[0:N,19:22], l[0:N,22:25],l[0:N,15:19]
     #a[:,0],a[:,1]= -a[:,0], -a[:,1]
     
     y = array([[linalg.norm(p[i]-anchor[i%4])] for i in xrange(0,N)])
     n = random.randn(N,1)*0.1
-    measure = y #+ n
+    measure = y + n
     xe = zeros((N,11))
     xe[0,2] = 0.27
 

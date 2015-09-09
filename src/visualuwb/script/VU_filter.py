@@ -11,11 +11,12 @@
 
 from sslib import *
 
-g  = 9.80665   
+g  = -9.80665   
 Q  = zeros((11,11))
-Q[ 0:3,  0:3] =  1*eye(3)
-Q[ 3:7,  3:7] =  0.001*eye(4)
-Q[7:10, 7:10] =  0.0064*eye(3)
+Q[ 0:3,  0:3] =  0.005*eye(3)
+Q[ 3:7,  3:7] =  0.0001*eye(4)
+Q[7:9, 7:9] =  0.005*eye(2)
+Q[9,9] =  2
 Q[10,10]      =  0.00000000001
 
 
@@ -36,7 +37,7 @@ def state_equation(x, t0, u):
     T = array([[1-2*qy*qy-2*qz*qz,   2*qx*qy-2*qz*qw,   2*qx*qz+2*qy*qw],
                [2*qx*qy + 2*qz*qw, 1-2*qx*qx-2*qz*qz,   2*qy*qz-2*qx*qw],
                [2*qx*qz-2*qy*qw  , 2*qy*qz + 2*qx*qw, 1-2*qx*qx-2*qy*qy]])
-    dev_v = dot(inverse(T), a) + array([0,0,g])   
+    dev_v = dot(T, a) + array([0,0,g])   
     #yaw bias transition
     dev_b = 0  
     #merge state transition
@@ -49,7 +50,7 @@ class UWBLocation:
         self.M = 5
         self.x = zeros((1,self.N))[0]
         self.R = zeros((5,5))
-        self.R[0,0] = 0.00001
+        self.R[0,0] = 0.1
         self.R[1:5,1:5] = eye(4)*0.0001
         self.ukfinit()
         self.state_equation = copy.deepcopy(state_equation)

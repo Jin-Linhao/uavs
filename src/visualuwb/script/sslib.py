@@ -18,3 +18,13 @@ from sensor_msgs.msg import Imu
 from geometry_msgs.msg import PoseStamped
 from tf.transformations import euler_from_quaternion
 from tf.transformations import quaternion_from_euler
+class sstimer:
+    def __init(self):
+        self.start_time = time.time()
+    def start(self):
+        self.start_time = time.time()
+    def end(self):
+        return time.time()-self.start_time
+        
+        
+        

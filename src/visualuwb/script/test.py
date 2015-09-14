@@ -5,9 +5,14 @@ from VU_filter import *
 f = open('ground_truth.txt','r')
 l = array([ map(float,line.split(' ')) for line in f if line.strip() != "" ])
 num = 1
+aa = l[:,19:22]
+rr = l[:,22:25]
 l = l[0:-1:num,:]
-N = 1000
+
+N = 1000/num
 p, qr, v, a, r, q  = l[0:N,2:5], l[0:N,5:9], l[0:N,9:12], l[0:N,19:22], l[0:N,22:25], l[0:N,15:19]
+a = array([mean(aa[i*num:(i+1)*num,:], axis=0) for i in xrange(0,p.shape[0]) ])
+r = array([mean(rr[i*num:(i+1)*num,:], axis=0) for i in xrange(0,p.shape[0]) ])
 #q = column_stack((q[:,1:4],q[:,0]))
 #a[:,0],a[:,1]= -a[:,0], -a[:,1]
 
@@ -17,12 +22,23 @@ measure = y + n
 xe = zeros((N,11))
 xe[0,2] = 0.27
 xe[0,6] = 1
-
-uwb = UWBLocation() 
+Q[ 0:3,  0:3] =   0.98*eye(3)#*10
+Q[ 3:7,  3:7] =  0.01*eye(4)#*10
+Q[7:9, 7:9] =  0.81*eye(2)#/2
+Q[9,9] =  400#/2
+Q[10,10]      =  0.000000001
+#1.28 0.81 400 num = 2
+#0.98 0.81,900 num =1
+#0.5 0.01 100 num = 10
+uwb = UWBLocation(1.0/100*num) 
+uwb.setQ(Q)
+timer = sstimer()
+timer.start()
 for i in xrange(0, N-1):
     xe[i+1], pp = uwb.locate(xe[i], Q, 1.0/100*num, measure[i,0], anchor[i%4], q[i], a[i], r[i])
-    print i
-        
+
+print "Accuracy:", linalg.norm(xe[:,0:3]-p)
+print "Time: ", timer.end()/1000  
 if __name__ == '__main__':
     
 

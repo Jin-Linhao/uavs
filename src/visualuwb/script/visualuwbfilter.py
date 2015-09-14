@@ -4,7 +4,7 @@ from VU_filter import *
 from sslib import *
 
 
-uwb = UWBLocation() 
+uwb = UWBLocation(0.01) 
 imu = IMULocation() 
 global xe,q,a,r,icount
 

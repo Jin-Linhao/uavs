@@ -4,6 +4,7 @@ from numpy.oldnumeric.linear_algebra import inverse
 from pykalman import UnscentedKalmanFilter, AdditiveUnscentedKalmanFilter
 import matplotlib.pyplot as plt
 from scipy.integrate import odeint
+import scipy 
 from mpl_toolkits.mplot3d import Axes3D
 from numpy import *
 import time

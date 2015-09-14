@@ -7,7 +7,8 @@ l = array([ map(float,line.split(' ')) for line in f if line.strip() != "" ])
 num = 1
 l = l[0:-1:num,:]
 N = 1000
-p, qr, v, a, r, q  = l[0:N,2:5], l[0:N,5:9], l[0:N,9:12], l[0:N,19:22], l[0:N,22:25],l[0:N,15:19]
+p, qr, v, a, r, q  = l[0:N,2:5], l[0:N,5:9], l[0:N,9:12], l[0:N,19:22], l[0:N,22:25], l[0:N,15:19]
+#q = column_stack((q[:,1:4],q[:,0]))
 #a[:,0],a[:,1]= -a[:,0], -a[:,1]
 
 y = array([[linalg.norm(p[i]-anchor[i%4])] for i in xrange(0,N)])
@@ -54,13 +55,13 @@ if __name__ == '__main__':
     ax.plot(q[:,0],color = 'red')
     ax.plot(q[:,1],color = 'blue')
     ax.plot(q[:,2],color = 'black')
-    ax.plot(q[:,3],color = 'green') 
+    ax.plot(q[:,3],color = 'yellow') 
     plt.title('real quaternion')
     ax = fig.add_subplot(3,2,4)
     ax.plot(xe[:,3],color = 'red')
     ax.plot(xe[:,4],color = 'blue')
     ax.plot(xe[:,5],color = 'black')
-    ax.plot(xe[:,6],color = 'green') 
+    ax.plot(xe[:,6],color = 'yellow') 
     plt.title('est quaternion')
 
     ax = fig.add_subplot(3,2,5)
@@ -78,4 +79,4 @@ if __name__ == '__main__':
     plt.show()
     
 else:
-    
+    pass

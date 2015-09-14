@@ -14,25 +14,31 @@ from sslib import *
 g  = -9.80665   
 Q  = zeros((11,11))
 Q[ 0:3,  0:3] =  0.005*eye(3)#*10
-Q[ 3:7,  3:7] =  0.00001*eye(4)#*10
+Q[ 3:7,  3:7] =  0.0001*eye(4)#*10
 Q[7:9, 7:9] =  0.5*eye(2)#/2
 Q[9,9] =  4#/2
 Q[10,10]      =  0.00000000001
 
 anchor = array([[-2,-2,0.2],[-2,2,1.2],[2,2,1.3],[2,-2,1.8]])
 
-
 def state_equation(x, t0, u):
     [p, q, v, b]     = [x[0:3], x[3:7], x[7:10], x[10]]
     [a, wx, wy, wz]  = [u[0:3], u[3], u[4], u[5]]        
     [qx, qy, qz, qw] = [q[0], q[1], q[2], q[3]]  
+    #[qw, qx, qy, qz] = [q[0], q[1], q[2], q[3]] 
     #positon transition
     dev_p = v
     #quaternion transition
-    R = array([[0,  -wx, -wy, -wz ],
-               [wx,   0, -wz,  wy ],
-               [wy,  wz,  0 , -wx ],
-               [wz, -wy,  wx,  0  ]])
+    #===========================================================================
+    #R =  array([[0,  -wx, -wy, -wz ],
+    #            [wx,   0,  wz, -wy ],
+    #            [wy, -wz,  0 ,  wx ],
+    #            [wz,  wy, -wx,  0  ]])
+    #===========================================================================
+    R = array([[0,   wz,  -wy,  wx ],
+               [-wz,   0,  wx,  wy ],
+               [ wy, -wx,  0 ,  wz ],
+               [-wx, -wy,  -wz,  0  ]])
     dev_q = 0.5 * dot(R, q)   
     #veloctiy transition
     T = array([[1-2*qy*qy-2*qz*qz,   2*qx*qy-2*qz*qw,   2*qx*qz+2*qy*qw],
@@ -74,7 +80,53 @@ class UWBLocation:
         return (self.x, self.P)
 
     def transition_function(self, state):
-        return odeint(self.state_equation, state, [0, self.delt_time], self.u)[1]
+        '''
+            x_{k+1} = A_k * x_k + B_k u_k
+        '''
+        #return odeint(self.state_equation, state, [0, self.delt_time], self.u)[1]
+        xk = state
+        uk = self.u[0]
+        T  = self.delt_time
+        [pk, qk, vk, bk] = [xk[0:3], xk[3:7], xk[7:10], xk[10]]
+        pvk = hstack((pk,vk))
+        [a, wx, wy, wz]  = [uk[0:3], uk[3], uk[4], uk[5]]        
+        [qx, qy, qz, qw] = [qk[0], qk[1], qk[2], qk[3]]
+        qk = array([qw, qx, qy, qz])
+        u = hstack((a,1))
+        #positon transition
+        w = linalg.norm(array((wx,wy,wz)))
+        r0, r1, r2, r3 = cos(T*w/2),sin(T*w/2)*wx/w,sin(T*w/2)*wy/w,sin(T*w/2)*wz/w,
+        Aq = array([[r0, -r1, -r2, -r3],
+                    [r1,  r0,  r3, -r2],
+                    [r2, -r3,  r0,  r1],
+                    [r3,  r2, -r1,  r0]])
+        qk1 = dot(Aq,qk)
+        
+        Apv = array([[1, 0, 0, T, 0, 0],
+                     [0, 1, 0, 0, T, 0],
+                     [0, 0, 1, 0, 0, T],
+                     [0, 0, 0, 1, 0 ,0],
+                     [0, 0, 0, 0, 1 ,0],
+                     [0, 0, 0, 0, 0 ,1]])
+        Btt = array([[T, 0, 0, T*T/2,   0,     0  ],
+                     [0, T, 0,   0,   T*T/2,   0  ],
+                     [0, 0, T,   0,    0,    T*T/2],
+                     [0, 0, 0,   T,     0 ,    0  ],
+                     [0, 0, 0,   0,     T ,    0  ],
+                     [0, 0, 0,   0,     0 ,    T  ]])
+        Tned = array([[1-2*qy*qy-2*qz*qz,   2*qx*qy-2*qz*qw,   2*qx*qz+2*qy*qw],
+                      [2*qx*qy + 2*qz*qw, 1-2*qx*qx-2*qz*qz,   2*qy*qz-2*qx*qw],
+                      [2*qx*qz-2*qy*qw  , 2*qy*qz + 2*qx*qw, 1-2*qx*qx-2*qy*qy]])
+        Bpv = dot(Btt, vstack((zeros((3,4)),column_stack((Tned ,array([0,0,g]))))))
+        pvk1 = dot(Apv,pvk) + dot(Bpv,u)
+        
+        bk1 = bk
+        
+        #merge state transition
+        xk1 = hstack((pvk1[0:3], array((qk1[1],qk1[2],qk1[3],qk1[0])), pvk1[3:6], bk1))
+        return xk1
+
+        
 
     def observation_function(self, state):
         return hstack((linalg.norm(state[0:3] - self.anchor_pos), state[3:7]))

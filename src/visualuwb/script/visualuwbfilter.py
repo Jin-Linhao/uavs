@@ -11,6 +11,8 @@ global xe,q,a,r,icount
 def statecallback(msg):
     global icount
     global xe
+
+
    
     pos        = array([msg.pose.position.x, msg.pose.position.y, msg.pose.position.z])
     

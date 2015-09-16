@@ -51,52 +51,92 @@ def state_equation(x, t0, u):
     dev_x = hstack((dev_p, dev_q, dev_v, dev_b))
     return dev_x
 
-def dis_transition_function(self, state):
-    '''
-        x_{k+1} = A_k * x_k + B_k u_k
-    '''
-    #return odeint(self.state_equation, state, [0, self.delt_time], self.u)[1]
-    xk = state
-    uk = self.u[0]
-    T  = self.delt_time
-    [pk, qk, vk, bk] = [xk[0:3], xk[3:7], xk[7:10], xk[10]]
-    pvk = hstack((pk,vk))
-    [a, wx, wy, wz]  = [uk[0:3], uk[3], uk[4], uk[5]]        
-    [qx, qy, qz, qw] = [qk[0], qk[1], qk[2], qk[3]]
-    qk = array([qw, qx, qy, qz])
-    u = hstack((a,1))
-    #positon transition
-    w = linalg.norm(array((wx,wy,wz)))
-    r0, r1, r2, r3 = cos(T*w/2),sin(T*w/2)*wx/w,sin(T*w/2)*wy/w,sin(T*w/2)*wz/w,
-    Aq = array([[r0, -r1, -r2, -r3],
-                [r1,  r0,  r3, -r2],
-                [r2, -r3,  r0,  r1],
-                [r3,  r2, -r1,  r0]])
-    qk1 = dot(Aq,qk)
-    
-    Apv = array([[1, 0, 0, T, 0, 0],
-                 [0, 1, 0, 0, T, 0],
-                 [0, 0, 1, 0, 0, T],
-                 [0, 0, 0, 1, 0 ,0],
-                 [0, 0, 0, 0, 1 ,0],
-                 [0, 0, 0, 0, 0 ,1]])
-    Btt = array([[T, 0, 0, T*T/2,   0,     0  ],
-                 [0, T, 0,   0,   T*T/2,   0  ],
-                 [0, 0, T,   0,    0,    T*T/2],
-                 [0, 0, 0,   T,     0 ,    0  ],
-                 [0, 0, 0,   0,     T ,    0  ],
-                 [0, 0, 0,   0,     0 ,    T  ]])
-    Tned = array([[1-2*qy*qy-2*qz*qz,   2*qx*qy-2*qz*qw,   2*qx*qz+2*qy*qw],
-                  [2*qx*qy + 2*qz*qw, 1-2*qx*qx-2*qz*qz,   2*qy*qz-2*qx*qw],
-                  [2*qx*qz-2*qy*qw  , 2*qy*qz + 2*qx*qw, 1-2*qx*qx-2*qy*qy]])
-    Bpv = dot(Btt, vstack((zeros((3,4)),column_stack((Tned ,array([0,0,g]))))))
-    pvk1 = dot(Apv,pvk) + dot(Bpv,u)
-    
-    bk1 = bk
-    
-    #merge state transition
-    xk1 = hstack((pvk1[0:3], array((qk1[1],qk1[2],qk1[3],qk1[0])), pvk1[3:6], bk1))
-    return xk1
+
+class VisualLocation:
+    def __init__(self, delt_time):
+        self.N = 11
+        self.M = 5
+        self.x = zeros((1,self.N))[0]
+        self.R = zeros((5,5))
+        self.R[0,0] = 0.1
+        self.R[1:5,1:5] = eye(4)*0.0001
+        self.state_equation = copy.deepcopy(state_equation)
+        self.u = tuple([[0,0,-g,0,0,0]])
+        self.delt_time = delt_time
+        self.Q = copy.deepcopy(Q*delt_time)
+        self.ukfinit()
+        
+    def setQ(self, Q):
+        self.Q = Q * self.delt_time
+        self.ukfinit()
+
+              
+    def ukfinit(self):
+        self.ukf = AdditiveUnscentedKalmanFilter(n_dim_obs = self.M, n_dim_state = self.N,
+                                        transition_functions     = self.transition_function,
+                                        observation_functions    = self.observation_function,
+                                        transition_covariance    = self.Q,
+                                        observation_covariance   = self.R,
+                                        initial_state_mean       = self.x,
+                                        initial_state_covariance = self.Q)
+
+    def locate(self, state, state_cov, delt_time, anchor_dis, anchor_pos, quaternion, linear_acc, angular_rate):
+        self.anchor_pos = anchor_pos
+        self.delt_time  = delt_time 
+        self.u = tuple([hstack((linear_acc, angular_rate))])
+        (self.x, self.P) = self.ukf.filter_update(state, state_cov*delt_time, hstack((anchor_dis, quaternion)))
+        return (self.x, self.P)
+
+    def transition_function(self, state):
+        '''
+            x_{k+1} = A_k * x_k + B_k u_k
+        '''
+        #return odeint(self.state_equation, state, [0, self.delt_time], self.u)[1]
+        xk = state
+        uk = self.u[0]
+        T  = self.delt_time
+        [pk, qk, vk, bk] = [xk[0:3], xk[3:7], xk[7:10], xk[10]]
+        pvk = hstack((pk,vk))
+        [a, wx, wy, wz]  = [uk[0:3], uk[3], uk[4], uk[5]]        
+        [qx, qy, qz, qw] = [qk[0], qk[1], qk[2], qk[3]]
+        qk = array([qw, qx, qy, qz])
+        u = hstack((a,1))
+        #positon transition
+        w = linalg.norm(array((wx,wy,wz)))
+        r0, r1, r2, r3 = cos(T*w/2),sin(T*w/2)*wx/w,sin(T*w/2)*wy/w,sin(T*w/2)*wz/w,
+        Aq = array([[r0, -r1, -r2, -r3],
+                    [r1,  r0,  r3, -r2],
+                    [r2, -r3,  r0,  r1],
+                    [r3,  r2, -r1,  r0]])
+        qk1 = dot(Aq,qk)
+        
+        Apv = array([[1, 0, 0, T, 0, 0],
+                     [0, 1, 0, 0, T, 0],
+                     [0, 0, 1, 0, 0, T],
+                     [0, 0, 0, 1, 0 ,0],
+                     [0, 0, 0, 0, 1 ,0],
+                     [0, 0, 0, 0, 0 ,1]])
+        Btt = array([[T, 0, 0, T*T/2,   0,     0  ],
+                     [0, T, 0,   0,   T*T/2,   0  ],
+                     [0, 0, T,   0,    0,    T*T/2],
+                     [0, 0, 0,   T,     0 ,    0  ],
+                     [0, 0, 0,   0,     T ,    0  ],
+                     [0, 0, 0,   0,     0 ,    T  ]])
+        Tned = array([[1-2*qy*qy-2*qz*qz,   2*qx*qy-2*qz*qw,   2*qx*qz+2*qy*qw],
+                      [2*qx*qy + 2*qz*qw, 1-2*qx*qx-2*qz*qz,   2*qy*qz-2*qx*qw],
+                      [2*qx*qz-2*qy*qw  , 2*qy*qz + 2*qx*qw, 1-2*qx*qx-2*qy*qy]])
+        Bpv = dot(Btt, vstack((zeros((3,4)),column_stack((Tned ,array([0,0,g]))))))
+        pvk1 = dot(Apv,pvk) + dot(Bpv,u)
+        
+        bk1 = bk
+        
+        #merge state transition
+        xk1 = hstack((pvk1[0:3], array((qk1[1],qk1[2],qk1[3],qk1[0])), pvk1[3:6], bk1))
+        return xk1
+
+    def observation_function(self, state):
+        return hstack((linalg.norm(state[0:3] - self.anchor_pos), state[3:7]))
+
 
 class UWBLocation:
     def __init__(self, delt_time):
@@ -180,41 +220,6 @@ class UWBLocation:
         xk1 = hstack((pvk1[0:3], array((qk1[1],qk1[2],qk1[3],qk1[0])), pvk1[3:6], bk1))
         return xk1
 
-        
-
     def observation_function(self, state):
         return hstack((linalg.norm(state[0:3] - self.anchor_pos), state[3:7]))
 
-class IMULocation:
-    def __init__(self):
-        self.N = 11
-        self.M = 5
-        self.x = zeros((1,self.N))[0]
-        self.R = zeros((5,5))
-        self.R[0,0] = 0.1
-        self.R[1:5,1:5] = eye(4)*0.0001
-        self.ukfinit()
-        self.state_equation = copy.deepcopy(state_equation)
-        self.u = tuple([[0,0,-g,0,0,0]])
-              
-    def ukfinit(self):
-        self.ukf = AdditiveUnscentedKalmanFilter(n_dim_obs = self.M, n_dim_state = self.N,
-                                        transition_functions     = self.transition_function,
-                                        observation_functions    = self.observation_function,
-                                        transition_covariance    = Q,
-                                        observation_covariance   = self.R,
-                                        initial_state_mean       = self.x,
-                                        initial_state_covariance = Q)
-
-    def locate(self, state, state_cov, delt_time, anchor_dis, anchor_pos, quaternion, linear_acc, angular_rate):
-        self.anchor_pos = anchor_pos
-        self.delt_time  = delt_time 
-        self.u = tuple([hstack((linear_acc, angular_rate))])
-        (self.x, self.P) = self.ukf.filter_update(state, state_cov, hstack((anchor_dis, quaternion)))
-        return (self.x, self.P)
-
-    def transition_function(self, state):
-        return odeint(self.state_equation, state, [0, self.delt_time], self.u)[1]
-
-    def observation_function(self, state):
-        return hstack((linalg.norm(state[0:3] - self.anchor_pos), state[3:7]))

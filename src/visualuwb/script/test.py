@@ -9,7 +9,7 @@ aa = l[:,19:22]
 rr = l[:,22:25]
 l = l[0:-1:num,:]
 
-N = 1000/num
+N = 2000/num
 p, qr, v, a, r, q  = l[0:N,2:5], l[0:N,5:9], l[0:N,9:12], l[0:N,19:22], l[0:N,22:25], l[0:N,15:19]
 a = array([mean(aa[i*num:(i+1)*num,:], axis=0) for i in xrange(0,p.shape[0]) ])
 r = array([mean(rr[i*num:(i+1)*num,:], axis=0) for i in xrange(0,p.shape[0]) ])
@@ -40,7 +40,6 @@ for i in xrange(0, N-1):
 print "Accuracy:", linalg.norm(xe[:,0:3]-p)
 print "Time: ", timer.end()/1000  
 if __name__ == '__main__':
-    
 
     fig1 = plt.figure()
     ax = fig1.add_subplot(121, projection='3d')
@@ -49,22 +48,25 @@ if __name__ == '__main__':
     ax.plot(p[:,0], p[:,1], p[:,2])
     
     ax = fig1.add_subplot(122)
-    ax.plot(abs(xe[:,0]-p[:,0]),color = 'red')
-    ax.plot(abs(xe[:,1]-p[:,1]),color = 'blue')
-    ax.plot(abs(xe[:,2]-p[:,2]),color = 'black')
+    lx,=ax.plot(abs(xe[:,0]-p[:,0]),color = 'red')
+    ly,=ax.plot(abs(xe[:,1]-p[:,1]),color = 'blue')
+    lz,=ax.plot(abs(xe[:,2]-p[:,2]),color = 'black')
+    plt.legend([lx,ly,lz], ['x', 'y', 'z'])
     plt.title('error of position')
     
     
     fig = plt.figure()
     ax = fig.add_subplot(321)
-    ax.plot(v[:,0],color = 'red')
-    ax.plot(v[:,1],color = 'blue')
-    ax.plot(v[:,2],color = 'black') 
+    lx,=ax.plot(v[:,0],color = 'red')
+    ly,=ax.plot(v[:,1],color = 'blue')
+    lz,=ax.plot(v[:,2],color = 'black') 
+    plt.legend([lx,ly,lz], ['x', 'y', 'z'])
     plt.title('real vel')
     ax = fig.add_subplot(323)
-    ax.plot(xe[:,7],color = 'red')
-    ax.plot(xe[:,8],color = 'blue')
-    ax.plot(xe[:,9],color = 'black') 
+    lx,=ax.plot(xe[:,7],color = 'red')
+    ly,=ax.plot(xe[:,8],color = 'blue')
+    lz,=ax.plot(xe[:,9],color = 'black') 
+    plt.legend([lx,ly,lz], ['x', 'y', 'z'])
     plt.title('est vel')
 
     ax = fig.add_subplot(3,2,2)
@@ -72,24 +74,28 @@ if __name__ == '__main__':
     ax.plot(q[:,1],color = 'blue')
     ax.plot(q[:,2],color = 'black')
     ax.plot(q[:,3],color = 'yellow') 
+    plt.legend(['x', 'y', 'z', 'w'])
     plt.title('real quaternion')
     ax = fig.add_subplot(3,2,4)
     ax.plot(xe[:,3],color = 'red')
     ax.plot(xe[:,4],color = 'blue')
     ax.plot(xe[:,5],color = 'black')
     ax.plot(xe[:,6],color = 'yellow') 
+    plt.legend(['x', 'y', 'z', 'w'])
     plt.title('est quaternion')
 
     ax = fig.add_subplot(3,2,5)
     ax.plot(r[:,0],color = 'red')
     ax.plot(r[:,1],color = 'blue')
     ax.plot(r[:,2],color = 'black') 
+    plt.legend([lx,ly,lz], ['x', 'y', 'z'])
     plt.title('real rate')
 
     ax = fig.add_subplot(3,2,6)
     ax.plot(a[:,0],color = 'red')
     ax.plot(a[:,1],color = 'blue')
     ax.plot(a[:,2],color = 'black') 
+    plt.legend([lx,ly,lz], ['x', 'y', 'z'])
     plt.title('real acc')
 
     plt.show()

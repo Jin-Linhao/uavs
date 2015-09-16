@@ -6,7 +6,7 @@ from VU_filter import *
 if __name__ == '__main__':
     f = open('ground_truth.txt','r')
     l = array([ map(float,line.split(' ')) for line in f if line.strip() != "" ])
-    num = 2
+    num = 1
     aa = l[:,19:22]
     rr = l[:,22:25]
     l = l[0:-1:num,:]
@@ -15,12 +15,17 @@ if __name__ == '__main__':
     p, qr, v, a, r, q  = l[0:N,2:5], l[0:N,5:9], l[0:N,9:12], l[0:N,19:22], l[0:N,22:25], l[0:N,15:19]
     a = array([mean(aa[i*num:(i+1)*num,:], axis=0) for i in xrange(0,p.shape[0]) ])
     r = array([mean(rr[i*num:(i+1)*num,:], axis=0) for i in xrange(0,p.shape[0]) ])
-    #q = column_stack((q[:,1:4],q[:,0]))
-    #a[:,0],a[:,1]= -a[:,0], -a[:,1]
     
-    y = array([[cv2.norm(p[i]-anchor[i%4])] for i in xrange(0,N)])
+    #UWB measurement
+    y = array([[cv2.norm(p[i]-uwbanchor[i%4])] for i in xrange(0,N)])
     n = random.randn(N,1)*0.1
-    measure = y + n
+    uwbmeasure = y + n
+    
+    #Vision measurement
+    visionmeasure = int32(array([array([ dot(K, p[j]-visionanchor[i]) for i in xrange(4)]).reshape((8)) for j in xrange(N)]) + random.randn(N,8))
+    #print visionmeasure.shape
+    
+    
     xe = zeros((N,11))
     xe[0,2] = 0.27
     xe[0,6] = 1
@@ -33,19 +38,27 @@ if __name__ == '__main__':
     #0.98 0.81,900 num =1
     #0.5 0.01 100 num = 10
     uwb = UWBLocation(1.0/100*num) 
-    uwb.setQ(Q)
+    uwb.setQ(Q)   
+    vision = VisionlLocation(1.0/100*num, K) 
+    vision.setQ(Q)
+    
     timer = sstimer()
     timer.start()
     for i in xrange(0, N-1):
-        xe[i+1], pp = uwb.locate(xe[i], Q, 1.0/100*num, measure[i,0], anchor[i%4], q[i], a[i], r[i])
+        print i
+        if i%2 == 0:
+            xe[i+1], _ = uwb.locate(xe[i], Q, 1.0/100, uwbmeasure[i,0], uwbanchor[i%4], q[i], a[i], r[i])
+        else:
+            xe[i+1], _ = vision.locate(xe[i], Q, 1.0/100, visionmeasure[i], visionanchor, q[i], a[i], r[i])
     
     print "Accuracy:", linalg.norm(xe[:,0:3]-p)
-    print "Time: ", timer.end()/1000
+    print "Time: ", timer.end()
     
     
     fig1 = plt.figure()
     ax = fig1.add_subplot(121, projection='3d')
-    ax.plot(anchor[:,0],anchor[:,1],anchor[:,2],marker='o',linewidth=3)
+    ax.plot(uwbanchor[:,0],uwbanchor[:,1],uwbanchor[:,2],marker='o',linewidth=3)
+    ax.plot(visionanchor[:,0],visionanchor[:,1], visionanchor[:,2], marker='o',linewidth=3)
     ax.plot(xe[:,0], xe[:,1], xe[:,2])
     ax.plot(p[:,0], p[:,1], p[:,2])
     

@@ -9,15 +9,19 @@ from mpl_toolkits.mplot3d import Axes3D
 from numpy import *
 import time
 import copy
+import sys
+sys.path.append('/usr/local/lib/python2.7/site-packages')
+import cv2
 
-
-import rospy
-import tf
-from nav_msgs.msg import Odometry
-from sensor_msgs.msg import Imu
-from geometry_msgs.msg import PoseStamped
-from tf.transformations import euler_from_quaternion
-from tf.transformations import quaternion_from_euler
+#===============================================================================
+# import rospy
+# import tf
+# from nav_msgs.msg import Odometry
+# from sensor_msgs.msg import Imu
+# from geometry_msgs.msg import PoseStamped
+# from tf.transformations import euler_from_quaternion
+# from tf.transformations import quaternion_from_euler
+#===============================================================================
 class sstimer:
     def __init(self):
         self.start_time = time.time()

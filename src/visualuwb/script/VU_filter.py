@@ -69,8 +69,7 @@ class VisualLocation:
     def setQ(self, Q):
         self.Q = Q * self.delt_time
         self.ukfinit()
-
-              
+ 
     def ukfinit(self):
         self.ukf = AdditiveUnscentedKalmanFilter(n_dim_obs = self.M, n_dim_state = self.N,
                                         transition_functions     = self.transition_function,
@@ -101,7 +100,7 @@ class VisualLocation:
         [qx, qy, qz, qw] = [qk[0], qk[1], qk[2], qk[3]]
         qk = array([qw, qx, qy, qz])
         u = hstack((a,1))
-        #positon transition
+        #quaternion transition
         w = linalg.norm(array((wx,wy,wz)))
         r0, r1, r2, r3 = cos(T*w/2),sin(T*w/2)*wx/w,sin(T*w/2)*wy/w,sin(T*w/2)*wz/w,
         Aq = array([[r0, -r1, -r2, -r3],
@@ -109,7 +108,7 @@ class VisualLocation:
                     [r2, -r3,  r0,  r1],
                     [r3,  r2, -r1,  r0]])
         qk1 = dot(Aq,qk)
-        
+        #position and velocity transition
         Apv = array([[1, 0, 0, T, 0, 0],
                      [0, 1, 0, 0, T, 0],
                      [0, 0, 1, 0, 0, T],
@@ -127,9 +126,8 @@ class VisualLocation:
                       [2*qx*qz-2*qy*qw  , 2*qy*qz + 2*qx*qw, 1-2*qx*qx-2*qy*qy]])
         Bpv = dot(Btt, vstack((zeros((3,4)),column_stack((Tned ,array([0,0,g]))))))
         pvk1 = dot(Apv,pvk) + dot(Bpv,u)
-        
-        bk1 = bk
-        
+        #bias transition
+        bk1 = bk     
         #merge state transition
         xk1 = hstack((pvk1[0:3], array((qk1[1],qk1[2],qk1[3],qk1[0])), pvk1[3:6], bk1))
         return xk1

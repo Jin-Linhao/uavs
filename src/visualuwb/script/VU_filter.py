@@ -24,7 +24,7 @@ K  = array([[320, 0,   320],
 
 
 uwbanchor = array([[-2,-2,0.2],[-2,2,1.2],[2,2,1.3],[2,-2,1.8]])
-visionanchor = array([[-2, 2,0 ],[-1, 2, 0],[1, 2, 0],[2, 2, 0]])
+visionanchor = array([[-2, -3,0 ],[-1, -3, 0],[1, -3, 0],[2, -3, 0]])
 
 def state_equation(x, t0, u):
     [p, q, v, b]     = [x[0:3], x[3:7], x[7:10], x[10]]
@@ -102,7 +102,7 @@ class VisionlLocation:
         self.M = 12
         self.x = zeros((1,self.N))[0]
         self.R = zeros((12,12))
-        self.R[0:8,0:8] = 1
+        self.R[0:8,0:8] = eye(8)*10
         self.R[8:12,8:12] = eye(4)*0.0001
         self.state_equation = copy.deepcopy(state_equation)
         self.u = tuple([[0,0,-g,0,0,0]])

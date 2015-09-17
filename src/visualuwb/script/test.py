@@ -11,45 +11,51 @@ if __name__ == '__main__':
     rr = l[:,22:25]
     l = l[0:-1:num,:]
     
-    N = 2000/num
+    N = 6000/num
     p, qr, v, a, r, q  = l[0:N,2:5], l[0:N,5:9], l[0:N,9:12], l[0:N,19:22], l[0:N,22:25], l[0:N,15:19]
     a = array([mean(aa[i*num:(i+1)*num,:], axis=0) for i in xrange(0,p.shape[0]) ])
     r = array([mean(rr[i*num:(i+1)*num,:], axis=0) for i in xrange(0,p.shape[0]) ])
     
     #UWB measurement
-    y = array([[cv2.norm(p[i]-uwbanchor[i%4])] for i in xrange(0,N)])
-    n = random.randn(N,1)*0.1
-    uwbmeasure = y + n
+    #y = array([[cv2.norm(p[i]-uwbanchor[i%4])] for i in xrange(0,N)])
+    #n = random.randn(N,1)*0.1
+    #uwbmeasure = y + n
     
     #Vision measurement
-    visionmeasure = int32(array([array([ dot(K, p[j]-visionanchor[i]) for i in xrange(4)]).reshape((8)) for j in xrange(N)]) + random.randn(N,8))
+    #visionmeasure = int32(array([array([ dot(K, p[j]-visionanchor[i]) for i in xrange(4)]).reshape((8)) for j in xrange(N)]) + random.randn(N,8))
     #print visionmeasure.shape
     
     
     xe = zeros((N,11))
     xe[0,2] = 0.27
     xe[0,6] = 1
-    Q[ 0:3,  0:3] =  1.28*eye(3)#*10
+    Q[ 0:3,  0:3] =  0.98*eye(3)#*10
     Q[ 3:7,  3:7] =  0.01*eye(4)#*10
     Q[ 7:9,  7:9] =  0.81*eye(2)#/2
-    Q[  9 ,   9 ] =  400#/2
+    Q[  9 ,   9 ] =  900#/2
     Q[ 10 ,  10 ] =  0.000000001
     #1.28 0.81 400 num = 2
     #0.98 0.81,900 num =1
     #0.5 0.01 100 num = 10
-    uwb = UWBLocation(1.0/100*num) 
+    Q = Q*7
+    uwb = UWBLocation(1.0/100) 
     uwb.setQ(Q)   
-    vision = VisionlLocation(1.0/100*num, K) 
+    vision = VisionlLocation(1.0/100, K) 
     vision.setQ(Q)
     
     timer = sstimer()
     timer.start()
+    uwbcount = 0
+
     for i in xrange(0, N-1):
         print i
         if i%2 == 0:
-            xe[i+1], _ = uwb.locate(xe[i], Q, 1.0/100, uwbmeasure[i,0], uwbanchor[i%4], q[i], a[i], r[i])
+            uwbdis = linalg.norm(p[i]-uwbanchor[uwbcount%4]) + random.rand(1)*0.1     
+            xe[i+1], _ = uwb.locate(xe[i], Q, 1.0/100,uwbdis, uwbanchor[uwbcount%4], q[i], a[i], r[i])
+            uwbcount = uwbcount + 1
         else:
-            xe[i+1], _ = vision.locate(xe[i], Q, 1.0/100, visionmeasure[i], visionanchor, q[i], a[i], r[i])
+            visionpoints = array([dot(K, p[i]-visionanchor[j]) for j in xrange(4)]).reshape((8)) + random.rand(8)*10
+            xe[i+1], _ = vision.locate(xe[i], Q, 1.0/100, visionpoints, visionanchor, q[i], a[i], r[i])
     
     print "Accuracy:", linalg.norm(xe[:,0:3]-p)
     print "Time: ", timer.end()

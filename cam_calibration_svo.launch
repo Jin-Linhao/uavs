@@ -1,14 +1,23 @@
 <?xml version="1.0"?>
 <launch>
+<!--
 	<node name="camera" pkg="usb_cam" type="usb_cam_node">
-		<param name="video_device" value="/dev/video0" />
+		<param name="video_device" value="/dev/video1" />
 		<param name="image_width" value="800" />
 		<param name="image_height" value="600" />
 		<param name="pixel_format" value="mjpeg" />
 		<param name="framerate" value="30" />
 		<param name="camera_frame_id" value="webcam" />
 	</node>
- 
+ -->
+  <node name="camera" pkg="usb_cam" type="usb_cam_node">
+    <param name="video_device" value="/dev/video0" />
+    <param name="image_width" value="640" />
+    <param name="image_height" value="480" />
+    <param name="pixel_format" value="yuyv" />
+    <param name="camera_frame_id" value="usb_cam" />
+    <param name="io_method" value="mmap"/>
+  </node>
 	<node name="proc" ns="camera" pkg="image_proc" type="image_proc" args="">
 	</node>
  

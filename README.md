@@ -1,4 +1,4 @@
-#  Mono-SLAM for Internet of Things Lab
+# UAVs for Internet of Things Lab
 	Edited by Wang Chen:
 
 ##To use python, you need to install scipy, numpy etc.

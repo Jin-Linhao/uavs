@@ -1,4 +1,4 @@
-#  Mono-SLAM for Internet of Things Lab
+# UAVs for Internet of Things Lab
 	Edited by Wang Chen:
 
 ##To use python, you need to install scipy, numpy etc.
@@ -23,8 +23,13 @@ when you compile and it says can not load nonfree module, please run:
 	sudo ldconfig -v
 
 ## To use gazebo and rviz for quadcopter simulation, you need to install hector-quadrotor
-
+	wget -O /tmp/gazebo6_install.sh http://osrf-distributions.s3.amazonaws.com/gazebo/gazebo6_install.sh; sudo sh /tmp/gazebo6_install.sh
+	
 	sudo apt-get install ros-hydro-hector-quadrotor-demo
+	
+If you have problems when you install gazebo, you can run:
+	
+	sudo apt-get remove .*gazebo.* && sudo apt-get update && sudo apt-get install gazebo6
 
 ## For svo slam or lsd package(two 3D vision slam method), they need their own dependencies, pleas refer to each readme file in respective package
 

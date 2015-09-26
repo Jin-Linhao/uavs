@@ -73,3 +73,4 @@ qtcreator-*
 # Catkin custom files
 CATKIN_IGNORE
 src/visualuwb/eclipse_project/
+src/visualuwb/eclipse_cproject/

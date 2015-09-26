@@ -111,6 +111,7 @@ SET(UWB_SRCS
 
 ## Declare a cpp executable
 add_executable(uwb_node src/uwb_node.cpp ${UWB_SRCS})
+add_executable(rendezvous_node src/rendezvous_node.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes

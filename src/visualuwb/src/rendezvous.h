@@ -7,33 +7,36 @@
 
 #ifndef GLOBAL_H_
 #define GLOBAL_H_
+
+
 #include <iostream>
 #include <string.h>
 #include <iostream>
 #include <math.h>
 #include <map>
-#define PI 3.141592654
-#define ROBOT_ID         1//for different robot id
-#define K                1.5//global affector
-#define M                4.0//surround factor, should be int
-#define N                3//number of robots
-#define MAX_SPEED        12//max speed of robot
-#define LOGN2            0.628//log(N,2)
-#define STEP             0.2//Time step
-#define TAGET_SPEED      15.0//max speed of target
-#define DIS_MIN          60
+
+double PI = 3.141592654;
+double ROBOT_ID=         1;//for different robot id
+double K    =            1.5;//global affector
+double M     =           4.0;//surround factor, should be int
+#define NumberofRobots   3//number of robots
+double MAX_SPEED   =     12;//max speed of robot
+double LOGN2     =       0.628;//log(N,2)
+double STEP       =      0.2;//Time step
+double TAGET_SPEED    =  15.0;//max speed of target
+double DIS_MIN      =    60;
 using namespace std;
 int ID;
 
 class NetPack
 {
 public:
-	double    dirNection[N+1][2];
-	double    decision[N+1][2];//前进，转弯
+    double    dirNection[NumberofRobots+1][2];
+    double    decision[NumberofRobots+1][2];//前进，转弯
 	friend ostream & operator<< (ostream & h,NetPack & pack)
 	{
 			cout<<"decision"<<endl;
-			for(int i=0;i<N+1;i++)
+            for(int i=0;i<NumberofRobots+1;i++)
 				cout <<pack.dirNection[i][0]<<" "<<pack.dirNection[i][1]<<"     "
 				<<pack.decision[i][0]<<" "<<pack.decision[i][1]<<endl;
 			return h;
@@ -46,13 +49,13 @@ typedef NetPack Netpack;
 class Rawinfo
 {
 public:
-	double position[N+1][2];//0：红 1：橙 2：青 3：兰
-	double direction[N+1][2];
+    double position[NumberofRobots+1][2];//0：红 1：橙 2：青 3：兰
+    double direction[NumberofRobots+1][2];
 	Rawinfo();
 	friend ostream & operator<< (ostream & h,Rawinfo & info)
 	{
 		cout<<"position and orientation"<<endl;
-		for(int i=0;i<N+1;i++)
+        for(int i=0;i<NumberofRobots+1;i++)
 			cout <<info.position[i][0]<<" "<<info.position[i][1]<<"     "
 			<<info.direction[i][0]<<" "<<info.direction[i][1]<<endl;
 		return h;
@@ -71,40 +74,40 @@ Netpack pack_test,pack_stop;
 rawinfo info_test;
 void init_testpack()
 {
-	pack_test.decision[1][0]=1;
-	pack_test.decision[1][1]=300;
-	pack_test.decision[2][0]=1;
-	pack_test.decision[2][1]=300;
-	pack_test.decision[3][0]=-1;
-	pack_test.decision[3][1]=300;
+    pack_test.decision[1][0]=1;
+    pack_test.decision[1][1]=300;
+    pack_test.decision[2][0]=1;
+    pack_test.decision[2][1]=300;
+    pack_test.decision[3][0]=-1;
+    pack_test.decision[3][1]=300;
 
-	memset(&pack_stop,0,sizeof(pack_stop));
+    memset(&pack_stop,0,sizeof(pack_stop));
 
-	info_test.position[0][0]=0;
-	info_test.position[0][1]=0;
-	info_test.position[1][0]=-1;
-	info_test.position[1][1]=0;
-	info_test.position[2][0]=-1;
-	info_test.position[2][1]=-1;
-	info_test.position[3][0]=-1;
-	info_test.position[3][1]=1;
+    info_test.position[0][0]=0;
+    info_test.position[0][1]=0;
+    info_test.position[1][0]=-1;
+    info_test.position[1][1]=0;
+    info_test.position[2][0]=-1;
+    info_test.position[2][1]=-1;
+    info_test.position[3][0]=-1;
+    info_test.position[3][1]=1;
 
-	info_test.direction[0][0]=1;
-	info_test.direction[0][1]=0;
-	info_test.direction[1][0]=1;
-	info_test.direction[1][1]=0;
-	info_test.direction[2][0]=1;
-	info_test.direction[2][1]=0;
-	info_test.direction[3][0]=1;
-	info_test.direction[3][1]=0;
+    info_test.direction[0][0]=1;
+    info_test.direction[0][1]=0;
+    info_test.direction[1][0]=1;
+    info_test.direction[1][1]=0;
+    info_test.direction[2][0]=1;
+    info_test.direction[2][1]=0;
+    info_test.direction[3][0]=1;
+    info_test.direction[3][1]=0;
 }
 
 struct ss_Pack
 {
-    double dis[N+1];//ID:self
-    double friend_angle[N+1][2];//0:left(clockwise),1:right(unclockwise)
-    double hunting_angle[N+1][2];//0left,1:right
-    double target_angle[N+1];//for zigbee: return posistion for right target return negtive for left target
+    double dis[NumberofRobots+1];//ID:self
+    double friend_angle[NumberofRobots+1][2];//0:left(clockwise),1:right(unclockwise)
+    double hunting_angle[NumberofRobots+1][2];//0left,1:right
+    double target_angle[NumberofRobots+1];//for zigbee: return posistion for right target return negtive for left target
 };
 
 ss_Pack a[3];
@@ -205,7 +208,7 @@ NetPack Robot::MakeDeci(Rawinfo rawinfo)
 
     double dis_sum=ss_pack.dis[1]+ss_pack.dis[2]+ss_pack.dis[3];
     double angle,deci;
-    for(int i=1;i<=N;i++)
+    for(int i=1;i<=NumberofRobots;i++)
     {
         deci=Getangle(
         ss_pack.friend_angle[i][0],ss_pack.friend_angle[i][1],
@@ -262,19 +265,19 @@ ss_Pack Robot::Calculate(double pos[][2],double dir[][2])
     int i,j;
     ss_Pack res;
     res.dis[0]=0;	//useless...
-    for (i=1;i<=N;i++)
+    for (i=1;i<=NumberofRobots;i++)
         res.dis[i]=EuclidNorm(pos[i],pos[0]);
     res.target_angle[0]=0;
     res.friend_angle[0][0]=0;
     res.friend_angle[0][1]=0;
     //Haunting Angle
-    for (i=0;i<=N;i++)
+    for (i=0;i<=NumberofRobots;i++)
     {
         res.hunting_angle[i][0]=2*PI/3;
         res.hunting_angle[i][1]=2*PI/3;
     }
     //Target Angle
-    for (i=1;i<=N;i++){
+    for (i=1;i<=NumberofRobots;i++){
         double tpoint[2];double tmp;
         PointMinus(tpoint,pos[0],pos[i]);	//tpoint=pos.tar-pos.me
         tmp=-VecAngle(tpoint,dir[i]);
@@ -290,7 +293,7 @@ ss_Pack Robot::Calculate(double pos[][2],double dir[][2])
     multimap<double,int> FriendMap;
     PointMinus(tbase,pos[1],pos[0]);	//base vec:me0->tar
     FriendMap.insert(std::pair<double,int>(0,1));
-    for (i=2;i<=N;i++){
+    for (i=2;i<=NumberofRobots;i++){
         double tpoint[2];double ang;
         PointMinus(tpoint, pos[i], pos[0]);
         ang=VecAngle(tpoint,tbase);		//tpoint.Angle-tbase.Angle,anticounter angle from tbase to tpoint
@@ -349,5 +352,5 @@ double Robot::EuclidNorm(double a[2],double b[2]){
     dx*=dx;dy*=dy;
     return sqrt(dx+dy);
 }
-
+//namespace rendezvous
 #endif /* GLOBAL_H_ */

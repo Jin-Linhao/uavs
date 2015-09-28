@@ -49,7 +49,7 @@ bool server(visualuwb::Rendezvous::Request  &req,
         double length = sqrt(twist.linear.x*twist.linear.x+ twist.linear.y*twist.linear.y);
         twist.linear.x /=length;
         twist.linear.y /= length;
-        twist.linear.z = 0;
+        twist.linear.z = 0.2;
         res.twist.push_back(twist);
     }
 

@@ -9,21 +9,28 @@ if __name__ == "__main__":
         print "requiring.."
         hunt = rospy.ServiceProxy('rendezvous_service', Rendezvous)
         #req = Rendezvous()
-        pose = Pose()     
+          
         poses = []
         
-        poses.append(Pose())
+        pose = Pose() 
+        pose.position.x=0
+        pose.position.y=0
+        pose.orientation.w=1
+        poses.append(pose)
         
+        pose = Pose() 
         pose.position.x=-1
         pose.position.y=0
         pose.orientation.w=1
         poses.append(pose)
         
+        pose = Pose() 
         pose.position.x=-1
         pose.position.y=1
         pose.orientation.w=1
         poses.append(pose)
         
+        pose = Pose() 
         pose.position.x=-1
         pose.position.y=-1
         pose.orientation.w=1

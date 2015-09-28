@@ -14,7 +14,7 @@
 #include <iostream>
 #include <math.h>
 #include <map>
-
+#include <stdio.h>
 double PI = 3.141592654;
 double ROBOT_ID=         1;//for different robot id
 double K    =            1.5;//global affector
@@ -37,8 +37,9 @@ public:
 	{
 			cout<<"decision"<<endl;
             for(int i=0;i<NumberofRobots+1;i++)
-				cout <<pack.dirNection[i][0]<<" "<<pack.dirNection[i][1]<<"     "
-				<<pack.decision[i][0]<<" "<<pack.decision[i][1]<<endl;
+                 printf("%+03.3f %+03.3f %+03.3f %+03.3f\n",
+                        pack.dirNection[i][0],pack.dirNection[i][1],
+                         pack.decision[i][0],pack.decision[i][1]);
 			return h;
 	}
 };
@@ -56,8 +57,8 @@ public:
 	{
 		cout<<"position and orientation"<<endl;
         for(int i=0;i<NumberofRobots+1;i++)
-			cout <<info.position[i][0]<<" "<<info.position[i][1]<<"     "
-			<<info.direction[i][0]<<" "<<info.direction[i][1]<<endl;
+            printf("%+03.3f %+03.3f %+03.3f %+03.3f\n",info.position[i][0],
+                    info.position[i][1],info.direction[i][0],info.direction[i][1]);
 		return h;
 	}
 };

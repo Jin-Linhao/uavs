@@ -9,32 +9,49 @@
 #include "ros/ros.h"
 #include "visualuwb/Rendezvous.h"
 #include "geometry_msgs/Twist.h"
+#include <tf/transform_listener.h>
+#include <tf/transform_datatypes.h>
 using namespace std;
+
 bool server(visualuwb::Rendezvous::Request  &req,
          visualuwb::Rendezvous::Response &res)
 {
     Robot   robot;
     rawinfo  info;
     NetPack  pack;
-    geometry_msgs::Twist twist;
+    ROS_INFO("new requirement!");
+
     for (int i = 0; i <=NumberofRobots; i++ )
     {
         info.position[i][0] = req.pose[i].position.x;
         info.position[i][1] = req.pose[i].position.y;
+        tf::Quaternion q(req.pose[i].orientation.x,
+                         req.pose[i].orientation.y,
+                         req.pose[i].orientation.z,
+                         req.pose[i].orientation.w);
+        tf::Matrix3x3 m(q);
+        double roll, pitch, yaw;
+        m.getRPY(roll, pitch, yaw);
+        //std::cout << "Roll: " << roll << ", Pitch: " << pitch << ", Yaw: " << yaw << std::endl;
+        info.direction[i][0]=cos(yaw);
+        info.direction[i][1]=sin(yaw);
     }
 
-    pack=robot.MakeDeci(info);
     cout<<info;
-    cout<<pack;
+    pack=robot.MakeDeci(info);
+    cout<<pack<<endl;
 
     for (int i = 0; i <=NumberofRobots; i++ )
     {
-        res.twist.push_back(twist);// [0].linear.x=pack.decision[i][0];
-        //res.twist[0].linear.y=pack.decision[i][1];
+        geometry_msgs::Twist twist;
+        twist.linear.x = sin(pack.decision[i][1]/180.0*PI);
+        twist.linear.y = cos(pack.decision[i][1]/180.0*PI);
+        double length = sqrt(twist.linear.x*twist.linear.x+ twist.linear.y*twist.linear.y);
+        twist.linear.x /=length;
+        twist.linear.y /= length;
+        twist.linear.z = 0;
+        res.twist.push_back(twist);
     }
-
-    //ROS_INFO("request: x=%ld, y=%ld", (long int)req.a, (long int)req.b);
-    //ROS_INFO("sending back response: [%ld]", (long int)res.sum);
 
     return true;
 }

@@ -44,12 +44,12 @@ bool server(visualuwb::Rendezvous::Request  &req,
     for (int i = 0; i <=NumberofRobots; i++ )
     {
         geometry_msgs::Twist twist;
-        twist.linear.x = sin(pack.decision[i][1]/180.0*PI);
-        twist.linear.y = cos(pack.decision[i][1]/180.0*PI);
+        twist.linear.y = sin(pack.decision[i][1]/180.0*PI);
+        twist.linear.x = cos(pack.decision[i][1]/180.0*PI);
         double length = sqrt(twist.linear.x*twist.linear.x+ twist.linear.y*twist.linear.y);
-        twist.linear.x /=length;
-        twist.linear.y /= length;
-        twist.linear.z = 0.2;
+        twist.linear.x = twist.linear.x/length*0.3;
+        twist.linear.y = twist.linear.y/length*0.3;
+        twist.linear.z = 0.0;
         res.twist.push_back(twist);
     }
 

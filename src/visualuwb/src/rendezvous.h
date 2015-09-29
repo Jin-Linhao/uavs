@@ -20,11 +20,11 @@ double ROBOT_ID=         1;//for different robot id
 double K    =            1.5;//global affector
 double M     =           4.0;//surround factor, should be int
 #define NumberofRobots   3//number of robots
-double MAX_SPEED   =     12;//max speed of robot
+double MAX_SPEED   =     1;//max speed of robot
 double LOGN2     =       0.628;//log(N,2)
-double STEP       =      0.2;//Time step
-double TAGET_SPEED    =  15.0;//max speed of target
-double DIS_MIN      =    60;
+double STEP       =      0.1;//Time step
+double TAGET_SPEED    =  1.2;//max speed of target
+double DIS_MIN      =    0.01;
 using namespace std;
 int ID;
 

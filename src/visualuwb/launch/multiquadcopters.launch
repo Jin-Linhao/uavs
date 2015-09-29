@@ -2,8 +2,8 @@
 <launch>
    <arg name="model" default="$(find hector_quadrotor_description)/urdf/quadrotor_with_cam.gazebo.xacro" />
 
-   <include file="$(find hector_gazebo_worlds)/launch/rolling_landscape_120m.launch"/>
-   
+   <include file="$(find hector_gazebo_worlds)/launch/start.launch"/>
+  
    <group ns="uav0">
       <include file="$(find hector_quadrotor_gazebo)/launch/spawn_quadrotor.launch" >
         <arg name="name" value="uav0" />
@@ -13,7 +13,7 @@
         <arg name="y" value="-3" />
       </include>
       <node name="controller" pkg="visualuwb" type="rendezvous_controller.py" respawn="false" output="screen"
-            args="uav0 uav1 uav2">
+            args="uav0">
       </node>
       <node name="rendezvous" pkg="visualuwb" type="rendezvous_node" respawn="false" output="screen">
       </node>
@@ -27,7 +27,7 @@
        <arg name="y" value="0.0" />
      </include>
       <node name="controller" pkg="visualuwb" type="rendezvous_controller.py" respawn="false" output="screen"
-            args="uav1 uav0 uav2">
+            args="uav1">
       </node>
       <node name="rendezvous" pkg="visualuwb" type="rendezvous_node" respawn="false" output="screen">
       </node>
@@ -41,7 +41,7 @@
        <arg name="y" value="3.0" />
      </include>
       <node name="controller" pkg="visualuwb" type="rendezvous_controller.py" respawn="false" output="screen"
-            args="uav2 uav0 uav1">
+            args="uav2">
       </node>
       <node name="rendezvous" pkg="visualuwb" type="rendezvous_node" respawn="false" output="screen">
       </node>

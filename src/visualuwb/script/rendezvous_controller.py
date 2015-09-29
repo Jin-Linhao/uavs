@@ -4,7 +4,8 @@ import sys
 from visualuwb.srv import Rendezvous
 from geometry_msgs.msg import Pose
 import tf
-
+from visualization_msgs.msg import Marker
+from math import atan2
 if __name__ == '__main__':
     
     rospy.init_node('controller', anonymous=True)
@@ -17,7 +18,24 @@ if __name__ == '__main__':
     msg.angular.z = 0
     pub.publish(msg)
     
-
+    vis_pub = rospy.Publisher(sys.argv[1]+'arrow',Marker,  queue_size=0);
+    marker = Marker()
+    marker.header.frame_id = '/'+sys.argv[1]+'/base_stabilized'
+    marker.id = 1
+    marker.type = Marker.ARROW
+    marker.action = Marker.ADD
+    marker.pose.position.x = 0
+    marker.pose.position.y = 0
+    marker.pose.position.z = 0
+    marker.scale.x = 2
+    marker.scale.y = 0.1
+    marker.scale.z = 0.1
+    marker.color.a = 1.0
+    marker.color.r = 0.0
+    marker.color.g = 1.0
+    marker.color.b = 0.0
+    #marker.ns = "my_namespace";
+    
     rate = rospy.Rate(10)
     rospy.sleep(2)
     for i in xrange(20):
@@ -38,9 +56,9 @@ if __name__ == '__main__':
         try:
             pose0,pose1,pose2,pose3 = Pose(),Pose(),Pose(),Pose()
             (T0, Q0) = listener.lookupTransform('/world', '/target/base_stabilized', rospy.Time(0))       
-            (T1, Q1) = listener.lookupTransform('/world', "/"+sys.argv[1]+'/base_stabilized', rospy.Time(0))
-            (T2, Q2) = listener.lookupTransform('/world', "/"+sys.argv[2]+'/base_stabilized', rospy.Time(0))
-            (T3, Q3) = listener.lookupTransform('/world', "/"+sys.argv[3]+'/base_stabilized', rospy.Time(0))
+            (T1, Q1) = listener.lookupTransform('/world', '/uav0/base_stabilized', rospy.Time(0))
+            (T2, Q2) = listener.lookupTransform('/world', '/uav1/base_stabilized', rospy.Time(0))
+            (T3, Q3) = listener.lookupTransform('/world', '/uav2/base_stabilized', rospy.Time(0))
             
             pose0.position.x,  pose0.position.y,  pose0.position.z = T0[0], T0[1], T0[2]
             pose0.orientation.x, pose0.orientation.x, pose0.orientation.x, pose0.orientation.x = Q0[0], Q0[1], Q0[2], Q0[3]
@@ -61,7 +79,22 @@ if __name__ == '__main__':
             poses.append(pose3)
             #print poses
             res = hunt(poses)
-            pub.publish(res.twist[1])
+            if sys.argv[1] == 'uav0':
+                twist = res.twist[1]
+            elif sys.argv[1] == 'uav1':
+                twist = res.twist[2]
+            elif sys.argv[1] == 'uav2':
+                twist = res.twist[3]
+            
+            marker.header.stamp = rospy.Time.now();
+            quat = quaternion_from_euler(0, 0, atan2(twist.linear.y, twist.linear.x))
+            marker.pose.orientation.x = quat[0]
+            marker.pose.orientation.y = quat[1]
+            marker.pose.orientation.z = quat[2]
+            marker.pose.orientation.w = quat[3]
+            
+            vis_pub.publish(marker);
+            pub.publish(twist)
             rate.sleep()
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             print "cant't get translation rotation or can't get controller or can not pub control information"

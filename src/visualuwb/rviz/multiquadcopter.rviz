@@ -54,6 +54,14 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
+        target/base_footprint:
+          Value: true
+        target/base_link:
+          Value: true
+        target/base_stabilized:
+          Value: true
+        target/sonar_link:
+          Value: true
         uav0/base_footprint:
           Value: true
         uav0/base_link:
@@ -99,6 +107,11 @@ Visualization Manager:
       Show Names: true
       Tree:
         world:
+          target/base_footprint:
+            target/base_stabilized:
+              target/base_link:
+                target/sonar_link:
+                  {}
           uav0/base_footprint:
             uav0/base_stabilized:
               uav0/base_link:
@@ -125,6 +138,30 @@ Visualization Manager:
                   {}
       Update Interval: 0
       Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /uav0/uav0arrow
+      Name: Marker
+      Namespaces:
+        "": true
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /uav1/uav1arrow
+      Name: Marker
+      Namespaces:
+        "": true
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /uav2/uav2arrow
+      Name: Marker
+      Namespaces:
+        "": true
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -149,7 +186,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 10.8247
+      Distance: 15.2079
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -161,10 +198,10 @@ Visualization Manager:
         Z: 0
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.369797
+      Pitch: 1.1148
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.98041
+      Yaw: 3.11041
     Saved: ~
 Window Geometry:
   Displays:
@@ -182,5 +219,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1631
-  X: 154
-  Y: 36
+  X: 144
+  Y: 26

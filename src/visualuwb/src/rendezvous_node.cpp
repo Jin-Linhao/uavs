@@ -29,9 +29,13 @@ bool server(visualuwb::Rendezvous::Request  &req,
                          req.pose[i].orientation.y,
                          req.pose[i].orientation.z,
                          req.pose[i].orientation.w);
-        tf::Matrix3x3 m(q);
-        double roll, pitch, yaw;
-        m.getRPY(roll, pitch, yaw);
+        //tf::Matrix3x3 m(q);
+        double q0=req.pose[i].orientation.w;
+        double q1=req.pose[i].orientation.x;
+        double q2=req.pose[i].orientation.y;
+        double q3=req.pose[i].orientation.z;
+        double yaw = atan2(2*(q0*q3+q1*q2),1-2*(q2*q2+q3*q3));
+        //m.getRPY(roll, pitch, yaw);
         //std::cout << "Roll: " << roll << ", Pitch: " << pitch << ", Yaw: " << yaw << std::endl;
         info.direction[i][0]=cos(yaw);
         info.direction[i][1]=sin(yaw);

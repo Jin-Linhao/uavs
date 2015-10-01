@@ -43,8 +43,10 @@
       <node name="controller" pkg="visualuwb" type="rendezvous_controller.py" respawn="false" output="screen"
             args="uav2">
       </node>
-      <node name="rendezvous" pkg="visualuwb" type="rendezvous_node" respawn="false" output="screen">
+      <include file="$(find hector_quadrotor_teleop)/launch/xbox_controller.launch"/>
+     <!-- <node name="rendezvous" pkg="visualuwb" type="rendezvous_node" respawn="false" output="screen">
       </node>
+      -->
    </group>
    
    <group ns="target">
@@ -55,7 +57,8 @@
         <arg name="x" value="4.0" />
         <arg name="y" value="-5.0" />
       </include>
-      <include file="$(find hector_quadrotor_teleop)/launch/xbox_controller.launch"/>
+  <!--    <include file="$(find hector_quadrotor_teleop)/launch/xbox_controller.launch"/>
+  -->
    </group>
  
    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find visualuwb)/rviz/multiquadcopter.rviz">

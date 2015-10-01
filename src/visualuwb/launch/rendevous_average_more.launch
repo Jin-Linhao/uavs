@@ -9,7 +9,7 @@
         <arg name="name" value="uav0" />
         <arg name="tf_prefix" value="uav0" />
         <arg name="model" value="$(arg model)"/> 
-        <arg name="x" value="6.0" />
+        <arg name="x" value="0.0" />
         <arg name="y" value="-3" />
       </include>
       <node name="controller" pkg="visualuwb" type="rendezvous_controller.py" respawn="false" output="screen"

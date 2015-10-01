@@ -17,7 +17,7 @@
 #include <stdio.h>
 double PI = 3.141592654;
 double ROBOT_ID=         1;//for different robot id
-double K    =            1.5;//global affector
+double K    =            1;//global affector
 double M     =           4.0;//surround factor, should be int
 #define NumberofRobots   3//number of robots
 double MAX_SPEED   =     1;//max speed of robot

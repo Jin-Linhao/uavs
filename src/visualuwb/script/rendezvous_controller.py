@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 from sslib import *
-import sys
 from visualuwb.srv import Rendezvous
-from geometry_msgs.msg import Pose
-import tf
-from visualization_msgs.msg import Marker
-from math import atan2
+
 if __name__ == '__main__':
     
     rospy.init_node('controller', anonymous=True)

@@ -37,7 +37,8 @@ if __name__ == "__main__":
         poses.append(pose)
         
         res = hunt(poses)
-        print res.twist[1]
+        
+        print res
 
     except rospy.ServiceException, e:
         print "Service call failed: %s"%e

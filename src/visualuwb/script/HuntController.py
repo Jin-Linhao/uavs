@@ -73,15 +73,15 @@ class HuntController:
         overlap_left = occupy_angle - left_angle
         overlap_right = occupy_angle - right_angle
         
-        print "overlap :",overlap_left, overlap_right
+        #print "overlap :",overlap_left, overlap_right
         
         surround_factor = (abs(overlap_left - overlap_right)/(2*pi))**(1/self.m)
-        print "surround factor:",surround_factor
+        #print "surround factor:",surround_factor
         
         dis_sum = sortcoor[0][1]+sortcoor[1][1]+sortcoor[2][1]
         capture_factor = sin( (sortcoor[robot_index][1]/dis_sum)**(log2(3))*pi)
         
-        print "capture factor", capture_factor
+        #print "capture factor", capture_factor
         
         if (overlap_left - overlap_right) < 0 :
             left_or_right = -1   #left
@@ -93,7 +93,7 @@ class HuntController:
         
         decision_beta = left_or_right * self.lambd *(1 - exp(-self.k * capture_factor * surround_factor))
 
-        print decision_beta/pi*180
+        #print decision_beta/pi*180
         
         #the target orientaton in terms of robot
         decision_yaw = -decision_beta + atan2(poses[0].position.y - poses[1].position.y, poses[0].position.x - poses[1].position.x)
@@ -102,7 +102,7 @@ class HuntController:
         elif decision_yaw > pi:
             decision_yaw = decision_yaw - 2*pi
         
-        print decision_yaw/pi*180
+        #print decision_yaw/pi*180
         
         q0=poses[1].orientation.w;
         q1=poses[1].orientation.x;
@@ -120,7 +120,7 @@ class HuntController:
             if turn_angle <= -pi:
                 turn_angle = turn_angle + 2*pi
                   
-        print turn_angle
+        #print turn_angle
        # print robot_index,neib_left,neib_right
     
         twist = Twist()

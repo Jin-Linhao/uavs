@@ -35,18 +35,16 @@
 
    <group ns="uav2">
      <include file="$(find hector_quadrotor_gazebo)/launch/spawn_quadrotor.launch">
-       <arg name="name" value="uav2" />
-       <arg name="tf_prefix" value="uav2" />
-       <arg name="model" value="$(arg model)" />
-       <arg name="y" value="3.0" />
+         <arg name="name" value="uav2" />
+         <arg name="tf_prefix" value="uav2" />
+         <arg name="model" value="$(arg model)" />
+         <arg name="y" value="3.0" />
      </include>
-      <node name="controller" pkg="visualuwb" type="rendezvous_controller.py" respawn="false" output="screen"
+     <node name="controller" pkg="visualuwb" type="rendezvous_controller.py" respawn="false" output="screen"
             args="uav2 uav1 uav0">
-      </node>
-      <include file="$(find hector_quadrotor_teleop)/launch/xbox_controller.launch"/>
-      <node name="rendezvous" pkg="visualuwb" type="hunt_srv_node.py" respawn="false" output="screen">
-      </node>
-    
+     </node>
+     <node name="rendezvous" pkg="visualuwb" type="hunt_srv_node.py" respawn="false" output="screen">
+     </node>
    </group>
    
    <group ns="target">
@@ -57,7 +55,7 @@
         <arg name="x" value="4.0" />
         <arg name="y" value="-5.0" />
       </include>
-      <include file="$(find hector_quadrotor_teleop)/launch/xbox_controller.launch"/>
+      <include file="$(find visualuwb)/launch/xbox_controller.launch"/>
       <node name="Formation" pkg="visualuwb" type="Formation.py" respawn="false" output="screen">
       </node>
    </group>

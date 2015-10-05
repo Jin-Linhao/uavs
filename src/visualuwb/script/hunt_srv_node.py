@@ -5,15 +5,12 @@ from HuntController import *
 
         
 def server(req):
-    #print "receiving new requirement!"
-    for pose in req.pose:
-        print pose
         
     hunt = HuntController()
     
-    res = hunt.decide(req.pose)
-    
-    return res
+    return hunt.decide(req.pose)
+
+
 if __name__ == '__main__':
     
     rospy.init_node('rendezvous_server', anonymous = True)

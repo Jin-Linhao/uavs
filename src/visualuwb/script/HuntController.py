@@ -61,7 +61,7 @@ class HuntController:
         right_angle = sortcoor[neib_right_index][0] - sortcoor[robot_index][0]
         
         #print sortcoor
-        print "neibor angle dis:",left_angle, right_angle
+        #print "neibor angle dis:",left_angle, right_angle
         if left_angle < 0:
             left_angle = left_angle + 2 *pi
         
@@ -121,7 +121,7 @@ class HuntController:
                 turn_angle = turn_angle + 2*pi
                   
         #print turn_angle
-       # print robot_index,neib_left,neib_right
+        #print robot_index,neib_left,neib_right
     
         twist = Twist()
         twist.linear.x = cos(turn_angle)

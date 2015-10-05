@@ -50,7 +50,7 @@ if __name__ == '__main__':
     while not rospy.is_shutdown():
         try:
             pose0,pose1,pose2,pose3 = Pose(),Pose(),Pose(),Pose()
-            (T0, Q0) = listener.lookupTransform('/world', '/target/base_stabilized', rospy.Time(0))       
+            (T0, Q0) = listener.lookupTransform('/world', '/target/'+sys.argv[1], rospy.Time(0))       
             (T1, Q1) = listener.lookupTransform('/world', '/'+sys.argv[1]+'/base_stabilized', rospy.Time(0))
             (T2, Q2) = listener.lookupTransform('/world', '/'+sys.argv[2]+'/base_stabilized', rospy.Time(0))
             (T3, Q3) = listener.lookupTransform('/world', '/'+sys.argv[3]+'/base_stabilized', rospy.Time(0))

@@ -77,6 +77,7 @@ if __name__ == '__main__':
         twist = res.twist[1]
         twist.linear.x =  twist.linear.x * 0.3
         twist.linear.y =  twist.linear.y * 0.3
+        twist.linear.z =  (pose0.position.z + 0.4 - pose1.position.z )*0.3
         
         marker.header.stamp = rospy.Time.now();
         quat = quaternion_from_euler(0, 0, atan2(twist.linear.y, twist.linear.x))

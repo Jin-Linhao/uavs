@@ -2,7 +2,6 @@
 from sslib import *
 from visualuwb.srv import *
 from HuntController import *
-
         
 def server(req):
         
@@ -14,7 +13,7 @@ def server(req):
 if __name__ == '__main__':
     
     rospy.init_node('rendezvous_server', anonymous = True)
-    
+   
     s = rospy.Service('rendezvous_service', Rendezvous, server)
     
     print "Ready to serve for rendezvous server"

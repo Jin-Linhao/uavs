@@ -1,10 +1,10 @@
 # UAVs for Internet of Things Lab
-	Edited by Wang Chen:
+	Edited by Jeffsan Chen Wang
 
 ##To use python, you need to install scipy, numpy etc.
-sudo apt-get install python-numpy python-scipy python-matplotlib ipython ipython-notebook python-pandas python-sympy python-nose
+	sudo apt-get install python-numpy python-scipy python-matplotlib ipython ipython-notebook python-pandas python-sympy python-nose
 
-sudo apt-get install python-numpy python-scipy python-matplotlib mayavi2 ipython python-setuptools python-simpy python-pyparsing
+	sudo apt-get install python-numpy python-scipy python-matplotlib mayavi2 ipython python-setuptools python-simpy python-pyparsing
 
 ##To use kalman filter in python, you need to install pykalman
  	sudo easy_install numpy scipy Sphinx numpydoc nose pykalman

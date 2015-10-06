@@ -30,8 +30,8 @@ class HuntController:
         poses[3]: neibor2
     '''
     def __init__(self):
-        self.k = 1.0 #decision factor
-        self.m = 7.0 #factor on surrounding factor
+        self.k = 2.0 #decision factor
+        self.m = 5.0 #factor on surrounding factor
         self.vel_ratio = 0.8
         self.lambd = 4.0/9*pi
     
@@ -136,13 +136,22 @@ class HuntController:
         return res
     
 if __name__ == '__main__':
+    from matplotlib.pyplot import cm
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import pandas as pd
+    import pymc as mc
+    import matplotlib.pyplot as plt
+    from matplotlib import animation
+    from copy import deepcopy
+    
     hunt = HuntController()
     
     poses = []
         
     pose = Pose() 
-    pose.position.x=0
-    pose.position.y=0
+    pose.position.x=-5
+    pose.position.y=-5
     pose.orientation.w=1
     poses.append(pose)
     
@@ -153,20 +162,92 @@ if __name__ == '__main__':
     poses.append(pose)
     
     pose = Pose() 
-    pose.position.x=1
+    pose.position.x=-3
     pose.position.y=0
     pose.orientation.w=1
     poses.append(pose)
     
     pose = Pose() 
-    pose.position.x=1.0
-    pose.position.y=-1.0
+    pose.position.x=3.0
+    pose.position.y=0.0
     pose.orientation.w=1
     poses.append(pose)
     
     res = hunt.decide(poses)
     
-    print cart2pol(0,-2)
+    #print cart2pol(0,-2)
+    
+    Y, X = np.mgrid[-5:5:20j, -5:5:20j]
+    U = -1 - np.cos(X**2 + Y)
+    V = 1 + X - Y
+    UU = []
+    VV = []
+    frames = 30
+    target = []
+    for k in xrange(frames):
+        poses[0].position.x = poses[0].position.x + 10.0/frames
+        poses[0].position.y = poses[0].position.y + 10.0/frames
+        for i in xrange(size(X,1)):
+            for j in xrange(size(Y,1)):
+                poses[1].position.x = X[i][j]
+                poses[1].position.y = Y[i][j]
+                res = hunt.decide(poses)
+                length = sqrt((poses[1].position.x - poses[0].position.x)**2 + (poses[1].position.y - poses[0].position.y)**2)         
+                normlenth = sqrt(res.twist[1].linear.x**2 + res.twist[1].linear.y**2)
+                U[i][j] = res.twist[1].linear.x / normlenth * length
+                V[i][j] = res.twist[1].linear.y / normlenth * length
+        VV.append(deepcopy(V))
+        UU.append(deepcopy(U))
+        target.append(deepcopy(poses[0]))
+        
+    #===========================================================================
+    # plot3 = plt.figure()
+    # plt.streamplot(X, Y, U, V,          # data
+    #                color=np.sqrt(U**2 + V**2),         # array that determines the colour
+    #                cmap=cm.cool,        # colour map
+    #                linewidth=2,         # line thickness
+    #                arrowstyle='->',     # arrow style
+    #                arrowsize=1.5)       # arrow size
+    # plt.plot(poses[0].position.x, poses[0].position.y, 'o')
+    # plt.plot(poses[2].position.x, poses[2].position.y, 'o')
+    # plt.plot(poses[3].position.x, poses[3].position.y, 'o')
+    # 
+    # #plt.colorbar()                      # add colour bar on the right
+    # 
+    # plt.title('Stream Plot, Dynamic Colour')
+    # plt.show(plot3)                     # display the plot
+    #===========================================================================
+
+    data = pd.DataFrame(data=0., index=np.arange(0, 30, 1), columns=np.arange(0,1, 0.01))
+    for exp in data.index.values:
+        data.ix[exp] = np.arange(0,1, 0.01)**(.1*exp)
+          
+    global flag
+    flag  = 1
+    def animate(nframe):
+        #plot3 = plt.figure()
+        global flag
+        plt.cla()
+        print nframe,'/30'
+        plt.streamplot(X, Y, UU[nframe], VV[nframe],          # data
+                       color=np.sqrt(UU[nframe]**2 + VV[nframe]**2),         # array that determines the colour
+                       cmap=cm.cool,        # colour map
+                       linewidth=2,         # line thickness
+                       arrowstyle='->',     # arrow style
+                       arrowsize=1.5)       # arrow size
+        plt.plot(target[nframe].position.x, target[nframe].position.y, '*',color = 'blue')
+        plt.plot(poses[2].position.x, poses[2].position.y, 'o',color = 'red')
+        plt.plot(poses[3].position.x, poses[3].position.y, 'o',color = 'red')
+        if nframe == 0 and flag == 1:
+            plt.colorbar()                      # add colour bar on the right
+            flag = 0
+        
+        #plt.title('Decision Stream')
+ 
+          
+    fig = plt.figure(figsize=(10,8))   
+    anim = animation.FuncAnimation(fig, animate, frames=30)
+    anim.save('demoanimation.gif', writer='imagemagick', fps=4);
     
     
     

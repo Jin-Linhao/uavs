@@ -10,7 +10,7 @@
     u[3:6] --> Angle rate of body frame expressed in inertial frame  '''
 
 from sslib import *
-
+from roslib import *
 g  = -9.80665
 Q  = zeros((11,11))
 Q[ 0:3,  0:3] =  0.5*eye(3)#*10

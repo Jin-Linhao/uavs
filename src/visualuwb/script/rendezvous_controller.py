@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from sslib import *
+from roslib import *
 from visualuwb.srv import Rendezvous
 
 if __name__ == '__main__':

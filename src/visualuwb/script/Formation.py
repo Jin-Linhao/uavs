@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from sslib import *
-from roslib import *
 from sensor_msgs.msg import Joy
 
 edge = 1.0

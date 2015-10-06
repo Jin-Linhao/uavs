@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from sslib import *
-from roslib import *
 from visualuwb.srv import *
 from HuntController import *
         

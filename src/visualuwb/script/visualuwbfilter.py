@@ -2,7 +2,6 @@
 __author__ = 'Jeffsan'
 from VU_filter import *
 from sslib import *
-from roslib import *
 
 Q[ 0:3,  0:3] =  0.98*eye(3)#*10
 Q[ 3:7,  3:7] =  0.01*eye(4)#*10

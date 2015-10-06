@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from sslib import *
-from roslib import *
 from VU_filter import *
 
 

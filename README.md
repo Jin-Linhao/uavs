@@ -30,6 +30,10 @@ you can set opencv2.4.9 compile settings using:
 when you compile and it says can not load nonfree module, please run:
 
 	sudo ldconfig -v
+	
+##(7/Oct/2015) I have move forward to OpenCV 3.0. To install it, refer to the following page that relative to opencv3.0
+
+	http://www.pyimagesearch.com/2015/06/22/install-opencv-3-0-and-python-2-7-on-ubuntu/
 
 ## To use gazebo and rviz for quadcopter simulation, you need to install hector-quadrotor
 	wget -O /tmp/gazebo6_install.sh http://osrf-distributions.s3.amazonaws.com/gazebo/gazebo6_install.sh; sudo sh /tmp/gazebo6_install.sh

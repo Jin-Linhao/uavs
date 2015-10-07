@@ -6,6 +6,15 @@
 
 	sudo apt-get install python-numpy python-scipy python-matplotlib mayavi2 ipython python-setuptools python-simpy python-pyparsing
 
+##To use python pymc, drawing stream and generate *.gif animation files, you need install pymc and its dependecies
+	sudo apt-get install gfortran
+	sudo apt-get install mencoder
+	sudo apt-get install imagemagick
+	git clone https://github.com/pymc-devs/pymc.git
+	cd pymc
+	sudo python setup.py config_fc --fcompiler gfortran build
+	sudo python setup.py install
+
 ##To use kalman filter in python, you need to install pykalman
  	sudo easy_install numpy scipy Sphinx numpydoc nose pykalman
  	you can find more information in : http://pykalman.github.io

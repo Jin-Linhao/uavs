@@ -58,6 +58,7 @@ if __name__ == '__main__':
             xe[i+1], _ = vision.locate(xe[i], Q, 1.0/100, visionpoints, visionanchor, q[i], a[i], r[i])
     
     print "Accuracy:", linalg.norm(xe[:,0:3]-p)
+    print "std:", std(xe[:,0:3]-p)
     print "Time: ", timer.end()
     
     

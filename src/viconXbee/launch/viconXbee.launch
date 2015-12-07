@@ -2,18 +2,20 @@
 <launch>
 
  <!-- viconXbee node -->
-  <node respawn="true" pkg="viconXbee"
-        type="viconXbee_node" name="viconXbee_node" >
-    <param name="viconSerialPort" type="string" value="/dev/ttyUSB0" />
-	<param name="viconNodeRate" type="string" value="40"/>
+  <node respawn="true" pkg="viconXbee" output="screen"
+        type="viconXbee_node" name="viconXbee_node0" >
+   	<param name="viconSerialPort" type="string" value="/dev/ttyUSB0" />
+	<param name="viconNodeRate" type="string" value="25"/>
+        <param name="viconAsyncMode" type="bool" value="false"/>
+        <param name="viconHandshakingModeEnabled" type="bool" value="false"/>
   </node>
 
-<!-- viconXbee node -->
-<!--
+<!-- viconXbee node 
   <node respawn="true" pkg="viconXbee"
         type="viconXbee_node" name="viconXbee_node1" >
     <param name="viconSerialPort" type="string" value="/dev/ttyUSB1" />
 	<param name="viconNodeRate" type="string" value="20"/>
   </node>
-  -->
+-->
+  
 </launch>
